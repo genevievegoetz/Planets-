@@ -1,0 +1,1003 @@
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\Genna\OneDrive\Documents\ECON 580 Replication\ggn-replication-kit\do\../log/run-cps-regs-with-clustered-errors.log
+  log type:  text
+ opened on:  21 Feb 2024, 15:06:16
+
+. 
+. /* --------------------------------------
+> 
+> This program runs simple regressions
+> for the Tennessee policy experiment.
+> 
+> --------------------------------------- */
+. 
+. clear all
+
+. estimates clear
+
+. set mem 500m
+set memory ignored.
+    Memory no longer needs to be set in modern Statas; memory adjustments are performed on the fly automatically.
+
+. set matsize 10000
+
+. set linesize 200
+
+. describe, short
+
+Contains data
+ Observations:             0                  
+    Variables:             0                  
+Sorted by: 
+
+. 
+. ************************************************************
+. **   Programs Used Below                          
+. ************************************************************
+. 
+. ** We display the time throughout this program to track which
+. ** pieces are slowing things down.
+. capture program drop datetime
+
+. program define datetime 
+  1.         disp "The time is now: $S_TIME, $S_DATE"
+  2. end
+
+. 
+. capture program drop tabresults
+
+.         program tabresults
+  1.         disp "Readable Output:  "
+  2.         esttab * , keep( `1' ) ///
+>         stats(r2 N, fmt(%9.3f %9.0g)) ///
+>         cells(b( fmt(%9.3f)) se( par(( )) fmt(%9.3f)) p(par([ ]) fmt(%9.3f)) ) replace  
+  3.         disp "To be pasted into excel:  "
+  4.         estout * , keep( `1' ) ///
+>         stats(r2 N, fmt(%9.6f %9.0g)) ///   
+>         cells(b(nostar fmt(%9.6f)) se(fmt(%9.6f) nostar) p(fmt(%9.6f) )) ///
+>         style(fixed) replace type mlabels(, nonumbers )
+  5. 
+.         estimates clear
+  6. end
+
+. 
+. ** then call it with:
+. ** tabresults "var1 var2 ..."
+. 
+. ************************************************************
+. **   Prepare CPS outcomes
+. ************************************************************
+. 
+. ** Option 13, below, prepares the micro data, and does nothing
+. ** else.
+. 
+. do fragment-prepare-cps-data.do 13
+
+. use ../src/cps_00013.dta, clear
+
+. d, f
+
+Contains data from ../src/cps_00013.dta
+ Observations:     4,723,421                  
+    Variables:            88                  15 Feb 2024 10:29
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Variable      Storage   Display    Value
+    name         type    format    label      Variable label
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+year            int     %8.0g                 Survey year
+serial          long    %12.0g                Household serial number
+hwtsupp         float   %10.4f     hwtsupp_lbl
+                                              Household weight, Supplement
+region          byte    %27.0g     region_lbl
+                                              Region and division
+statefip        byte    %57.0g     statefip_lbl
+                                              State (FIPS code)
+metro           byte    %27.0g     metro_lbl
+                                              Metropolitan central city status
+metarea         int     %50.0g     metarea_lbl
+                                              Metropolitan area
+month           byte    %9.0g      month_lbl
+                                              Month
+wtsupp          float   %10.4f                Supplement Weight
+hinswt          double  %9.0f                 Summary health insurance weight
+sploc           byte    %8.0g                 Spouse's location in household
+sprule          byte    %74.0g     sprule_lbl
+                                              Rule for linking spouse
+nchild          byte    %18.0g     nchild_lbl
+                                              Number of own children in household
+eldch           byte    %20.0g     eldch_lbl
+                                              Age of eldest own child in household
+relate          int     %34.0g     relate_lbl
+                                              Relationship to household head
+age             byte    %19.0g     age_lbl    Age
+sex             byte    %8.0g      sex_lbl    Sex
+race            int     %37.0g     race_lbl   Race
+marst           byte    %23.0g     marst_lbl
+                                              Marital status
+citizen         byte    %31.0g     citizen_lbl
+                                              Citizenship status
+educ            int     %51.0g     educ_lbl   Educational attainment recode
+higrade         int     %31.0g     higrade_lbl
+                                              Highest grade of school
+educ99          byte    %47.0g     educ99_lbl
+                                              Educational attainment, 1990
+empstat         byte    %30.0g     empstat_lbl
+                                              Employment status
+labforce        byte    %26.0g     labforce_lbl
+                                              Labor force status
+occ             int     %8.0g      occ_lbl    Occupation
+occ1990         int     %78.0g     occ1990_lbl
+                                              Occupation, 1990 basis
+occ1950         int     %60.0g     occ1950_lbl
+                                              Occupation, 1950 basis
+ind             int     %8.0g      ind_lbl    Industry
+ind1950         int     %57.0g     ind1950_lbl
+                                              Industry, 1950 basis
+wkswork1        byte    %8.0g      wkswork1_lbl
+                                              Weeks worked last year
+wkswork2        byte    %12.0g     wkswork2_lbl
+                                              Weeks worked last year, intervalled
+hrswork         byte    %8.0g      hrswork_lbl
+                                              Hours worked last week
+uhrswork        byte    %13.0g     uhrswork_lbl
+                                              Usual hours worked per week (last yr)
+hourwage        int     %8.0g                 Hourly wage
+paidhour        byte    %8.0g      paidhour_lbl
+                                              Paid by the hour
+union           byte    %33.0g     union_lbl
+                                              Union membership
+firmsize        byte    %10.0g     firmsize_lbl
+                                              Number of employees
+ftotval         double  %10.0f     ftotval_lbl
+                                              Total family income
+inctot          double  %8.0f      inctot_lbl
+                                              Total personal income
+incwage         long    %12.0g     incwage_lbl
+                                              Wage and salary income
+earnweek        int     %8.0g                 Weekly earnings
+poverty         byte    %42.0g     poverty_lbl
+                                              Official poverty status
+cutoff          long    %12.0g                Cutoff for offical poverty status, in dollars
+disabwrk        byte    %34.0g     disabwrk_lbl
+                                              Work disability
+health          byte    %9.0g      health_lbl
+                                              Health status
+migsta1         byte    %20.0g     migsta1_lbl
+                                              State of residence 1 year ago
+migrate1        byte    %36.0g     migrate1_lbl
+                                              Migration status, 1 year
+hcovany         byte    %11.0g     hcovany_lbl
+                                              Any insurance, public or private (summary)
+hcovpriv        byte    %11.0g     hcovpriv_lbl
+                                              Any private insurance (summary)
+hinsemp         byte    %11.0g     hinsemp_lbl
+                                              Employer-sponsored insurance (summary)
+hinspur         byte    %11.0g     hinspur_lbl
+                                              Individually purchased insurance (summary)
+hcovpub         byte    %11.0g     hcovpub_lbl
+                                              Any public insurance (summary)
+hinscaid        byte    %11.0g     hinscaid_lbl
+                                              Any Medicaid/SCHIP/other public insurance (summary)
+hinscare        byte    %11.0g     hinscare_lbl
+                                              Medicare coverage (summary)
+hinsmil         byte    %11.0g     hinsmil_lbl
+                                              Any military insurance (summary)
+inclugh         byte    %8.0g      inclugh_lbl
+                                              Included in employer group health plan last year
+paidgh          byte    %18.0g     paidgh_lbl
+                                              Employer paid for group health plan
+emcontrb        int     %8.0g      emcontrb_lbl
+                                              Employer contribution for health insurance
+himcaid         byte    %8.0g      himcaid_lbl
+                                              Covered by Medicaid last year
+himcare         byte    %8.0g      himcare_lbl
+                                              Covered by Medicare last year
+hichamp         byte    %8.0g      hichamp_lbl
+                                              Covered by military health insurance last year
+phinsur         byte    %8.0g      phinsur_lbl
+                                              Reported covered by private health insurance last year
+phiown          byte    %8.0g      phiown_lbl
+                                              Private health insurance in own name last year
+caid            byte    %8.0g      caid_lbl   Covered by Medicaid last year
+care            byte    %8.0g      care_lbl   Covered by Medicare last year
+champus         byte    %8.0g      champus_lbl
+                                              Covered by Champus/Tricare last year
+champva         byte    %8.0g      champva_lbl
+                                              Covered by CHAMPVA last year
+militva         byte    %37.0g     militva_lbl
+                                              Covered by VA or Military health care last year
+indianh         byte    %8.0g      indianh_lbl
+                                              Covered by Indian Health Service last year
+groupown        byte    %8.0g      groupown_lbl
+                                              Policyholder for employment-based insurance last year
+groupdep        byte    %8.0g      groupdep_lbl
+                                              Dependent covered by employment-based insurance last year
+privown         byte    %8.0g      privown_lbl
+                                              Policyholder for privately-purchased insurance last year
+privdep         byte    %8.0g      privdep_lbl
+                                              Dependent covered by privately-purchased insurance last year
+grouptyp        byte    %17.0g     grouptyp_lbl
+                                              Type of employment-based coverage last year
+privtyp         byte    %17.0g     privtyp_lbl
+                                              Type of privately-purchased coverage last year
+grpwho1         byte    %44.0g     grpwho1_lbl
+                                              Line number of first policyholder of employment-based insurance
+grpwho2         byte    %44.0g     grpwho2_lbl
+                                              Line number of second policyholder of employment-based insurance
+privwho1        byte    %46.0g     privwho1_lbl
+                                              Line number of first policyholder of privately-purchased insurance
+privwho2        byte    %46.0g     privwho2_lbl
+                                              Line number of second policyholder of privately-purchased insurance
+mocaid          byte    %8.0g      mocaid_lbl
+                                              Months of Medicaid coverage last year
+schip           byte    %8.0g      schip_lbl
+                                              State Children's Health Insurance Program coverage last year
+verify          byte    %13.0g     verify_lbl
+                                              Verification: Did individual actually have health insurance
+groupout        byte    %8.0g      groupout_lbl
+                                              Employment-based insurance covered non-household member
+privout         byte    %8.0g      privout_lbl
+                                              Privately-purchased insurance covered non-household member
+out             byte    %8.0g      out_lbl    Covered by policy of person outside the household
+covergh         byte    %8.0g      covergh_lbl
+                                              Covered by group health insurance, last year
+coverpi         byte    %8.0g      coverpi_lbl
+                                              Covered by private health insurance, last year
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Sorted by: 
+
+. 
+. ************************************************************
+. **   Restrict to South and key years
+. ************************************************************
+. 
+. if (`1' > 0 & `1' < 13) {
+.         gen south = ///
+>          (statefip == 54 | statefip == 24 | statefip == 10 | statefip == 11 | ///
+>           statefip == 21 | statefip == 47 | ///
+>           statefip == 37 | statefip == 51 | statefip == 45 | statefip == 13 | ///
+>           statefip ==  5 | statefip == 22 | statefip == 48 | statefip == 40 | ///
+>           statefip ==  1 | statefip == 28 | statefip == 12 )
+.         
+.         keep if south == 1
+.         keep if year >= 1999 & year <= 2013
+. }
+
+. 
+. 
+. ************************************************************
+. **   Identify those with kids
+. ************************************************************
+. 
+. sort year serial
+
+. merge year serial using ../dta/cps_yngch.dta, uniqusing
+(you are using old merge syntax; see [D] merge for new syntax)
+variables year serial do not uniquely identify observations in the master data
+
+. tab year _merge, missing
+
+    Survey |        _merge
+      year |         1          3 |     Total
+-----------+----------------------+----------
+      1986 |   157,661          0 |   157,661 
+      1987 |   155,468          0 |   155,468 
+      1988 |   155,980          0 |   155,980 
+      1989 |   144,687          0 |   144,687 
+      1990 |   158,079          0 |   158,079 
+      1991 |   158,477          0 |   158,477 
+      1992 |   155,796          0 |   155,796 
+      1993 |   155,197          0 |   155,197 
+      1994 |   150,943          0 |   150,943 
+      1995 |   149,642          0 |   149,642 
+      1996 |   130,476          0 |   130,476 
+      1997 |   131,854          0 |   131,854 
+      1998 |   131,617          0 |   131,617 
+      1999 |   132,324          0 |   132,324 
+      2000 |    92,832     40,878 |   133,710 
+      2001 |   155,382     62,887 |   218,269 
+      2002 |   154,402     62,817 |   217,219 
+      2003 |   153,556     62,868 |   216,424 
+      2004 |   151,486     61,755 |   213,241 
+      2005 |   146,802     63,846 |   210,648 
+      2006 |   143,672     64,890 |   208,562 
+      2007 |   142,003     64,636 |   206,639 
+      2008 |   141,342     65,062 |   206,404 
+      2009 |   142,982     64,939 |   207,921 
+      2010 |   143,713     66,089 |   209,802 
+      2011 |   140,150     64,833 |   204,983 
+      2012 |   137,752     63,646 |   201,398 
+-----------+----------------------+----------
+     Total | 3,914,275    809,146 | 4,723,421 
+
+. assert _merge != 2 if year >= 2000
+
+. drop _merge
+
+. gen own_kid = yngch < 18
+
+. 
+. sort year serial age
+
+. by year serial: gen min_age = age[1]
+
+. by year serial: gen max_age = age[_N]
+
+. summ min_age ,det
+
+                           min_age
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%            0              0
+ 5%            0              0
+10%            1              0       Obs           4,723,421
+25%            4              0       Sum of wgt.   4,723,421
+
+50%           13                      Mean           21.60281
+                        Largest       Std. dev.      22.54444
+75%           31             99
+90%           61             99       Variance        508.252
+95%           70             99       Skewness       1.175761
+99%           80             99       Kurtosis       3.207245
+
+. gen kid = (min_age < 18)
+
+. 
+. replace inctot = . if inctot == 99999999 
+(1,132,597 real changes made, 1,132,597 to missing)
+
+. replace inctot = . if inctot == 99999998 
+(0 real changes made)
+
+. 
+. ************************************************************
+. **   Restrictions on age and education
+. ************************************************************
+. 
+. if (`1' == 11) {
+.         keep if age >= 66
+.         keep if educ <= 111
+. }
+
+. if (`1' != 11 & `1' != 13) {
+.         keep if age >= 21 & age < 65
+.         keep if educ <= 111
+. }
+
+. if (`1' == 13) {
+.         keep if educ <= 111
+(266,082 observations deleted)
+. }
+
+. 
+. ************************************************************
+. **   Create key variables
+. ************************************************************
+. 
+. gen any_ind = (hinspur == 2)
+
+. 
+. gen has_spouse = (sploc != 0)
+
+. 
+. ** Impose no private h.i. if on Medicaid for 2003
+. gen verifs = (himcaid == 2 & hcovpriv == 2)
+
+. bys year: tab verifs if statefip == 47, missing
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1986
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,679      100.00      100.00
+------------+-----------------------------------
+      Total |      1,679      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1987
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,728      100.00      100.00
+------------+-----------------------------------
+      Total |      1,728      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1988
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,697       98.95       98.95
+          1 |         18        1.05      100.00
+------------+-----------------------------------
+      Total |      1,715      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1989
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,744       98.09       98.09
+          1 |         34        1.91      100.00
+------------+-----------------------------------
+      Total |      1,778      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1990
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,690       98.54       98.54
+          1 |         25        1.46      100.00
+------------+-----------------------------------
+      Total |      1,715      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1991
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,743       98.25       98.25
+          1 |         31        1.75      100.00
+------------+-----------------------------------
+      Total |      1,774      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1992
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,804       97.83       97.83
+          1 |         40        2.17      100.00
+------------+-----------------------------------
+      Total |      1,844      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1993
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,819       96.35       96.35
+          1 |         69        3.65      100.00
+------------+-----------------------------------
+      Total |      1,888      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1994
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,649       96.83       96.83
+          1 |         54        3.17      100.00
+------------+-----------------------------------
+      Total |      1,703      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1995
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,490       94.07       94.07
+          1 |         94        5.93      100.00
+------------+-----------------------------------
+      Total |      1,584      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1996
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,450       95.21       95.21
+          1 |         73        4.79      100.00
+------------+-----------------------------------
+      Total |      1,523      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1997
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,475       93.24       93.24
+          1 |        107        6.76      100.00
+------------+-----------------------------------
+      Total |      1,582      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1998
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,482       94.94       94.94
+          1 |         79        5.06      100.00
+------------+-----------------------------------
+      Total |      1,561      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1999
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,575       96.74       96.74
+          1 |         53        3.26      100.00
+------------+-----------------------------------
+      Total |      1,628      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2000
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,510       97.23       97.23
+          1 |         43        2.77      100.00
+------------+-----------------------------------
+      Total |      1,553      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2001
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      2,391       95.91       95.91
+          1 |        102        4.09      100.00
+------------+-----------------------------------
+      Total |      2,493      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2002
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      2,456       97.08       97.08
+          1 |         74        2.92      100.00
+------------+-----------------------------------
+      Total |      2,530      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2003
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      2,432       95.52       95.52
+          1 |        114        4.48      100.00
+------------+-----------------------------------
+      Total |      2,546      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2004
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      2,316       97.39       97.39
+          1 |         62        2.61      100.00
+------------+-----------------------------------
+      Total |      2,378      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2005
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      2,557       96.31       96.31
+          1 |         98        3.69      100.00
+------------+-----------------------------------
+      Total |      2,655      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2006
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      2,625       96.26       96.26
+          1 |        102        3.74      100.00
+------------+-----------------------------------
+      Total |      2,727      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2007
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      2,520       97.75       97.75
+          1 |         58        2.25      100.00
+------------+-----------------------------------
+      Total |      2,578      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2008
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      2,500       97.24       97.24
+          1 |         71        2.76      100.00
+------------+-----------------------------------
+      Total |      2,571      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2009
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      2,437       97.29       97.29
+          1 |         68        2.71      100.00
+------------+-----------------------------------
+      Total |      2,505      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2010
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      2,456       96.69       96.69
+          1 |         84        3.31      100.00
+------------+-----------------------------------
+      Total |      2,540      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2011
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      2,393       97.24       97.24
+          1 |         68        2.76      100.00
+------------+-----------------------------------
+      Total |      2,461      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2012
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      2,376       95.54       95.54
+          1 |        111        4.46      100.00
+------------+-----------------------------------
+      Total |      2,487      100.00
+
+
+. replace hcovpriv = . if himcaid == 2 & (year == 2003)
+(27,056 real changes made, 27,056 to missing)
+
+. 
+. tab hcovpub , miss
+
+ Any public |
+  insurance |
+  (summary) |      Freq.     Percent        Cum.
+------------+-----------------------------------
+Not covered |  3,053,231       68.50       68.50
+    Covered |  1,107,003       24.84       93.33
+          . |    297,105        6.67      100.00
+------------+-----------------------------------
+      Total |  4,457,339      100.00
+
+. gen byte any_public = (hcovpub == 2)
+
+. 
+. tab hcovpriv , miss
+
+Any private |
+  insurance |
+  (summary) |      Freq.     Percent        Cum.
+------------+-----------------------------------
+Not covered |  1,239,261       27.80       27.80
+    Covered |  2,893,917       64.92       92.73
+          . |    324,161        7.27      100.00
+------------+-----------------------------------
+      Total |  4,457,339      100.00
+
+. gen byte any_private = (hcovpriv == 2)
+
+. 
+. ** We have found evidence that some publicly insured CPS respondents are
+. ** mis-reporting their coverage is private. We remove this small group here.
+. replace any_private = 0 if any_ind == 1
+(279,093 real changes made)
+
+. 
+. tab hcovany , miss
+
+        Any |
+ insurance, |
+  public or |
+    private |
+  (summary) |      Freq.     Percent        Cum.
+------------+-----------------------------------
+Not covered |    598,548       13.43       13.43
+    Covered |  3,561,686       79.91       93.33
+          . |    297,105        6.67      100.00
+------------+-----------------------------------
+      Total |  4,457,339      100.00
+
+. gen byte any_coverage = (hcovany == 2)
+
+. 
+. gen any_empl = (hinsemp == 2)
+
+. 
+. ** Drop armed forces(see IPUMS-CPS)
+. ** Only working if have positive hours
+. drop if empstat == 13
+(15,051 observations deleted)
+
+. gen byte working = (empstat == 10)
+
+. 
+. gen byte working_alt = (empstat >= 10 & empstat <= 12)
+
+. 
+. gen byte unemp = (empstat >= 20 & empstat <= 22)
+
+. 
+. gen byte ilf = (empstat >= 10 & empstat <= 22)
+
+. 
+. gen any_mcaid  = (himcaid == 2)
+
+. gen any_mcare  = (himcare == 2)
+
+. 
+. gen byte any_priv_wk   = (hcovpriv == 2 & working == 1)
+
+. gen byte any_priv_nowk = (hcovpriv == 2 & working == 0)
+
+. 
+. gen byte any_empl_wk = (any_empl == 1 & working == 1)
+
+. gen byte any_noempl_wk = (any_empl == 0 & working == 1)
+
+.  
+. gen byte any_nocov_wk     = (any_coverage == 0 & working == 1)
+
+. gen byte any_cov_wk     = (any_coverage == 1 & working == 1)
+
+. 
+. tab hrswork , miss
+
+      Hours |
+worked last |
+       week |      Freq.     Percent        Cum.
+------------+-----------------------------------
+        NIU |  2,536,739       57.10       57.10
+     1 hour |      6,443        0.15       57.25
+    2 hours |      4,061        0.09       57.34
+    3 hours |      4,158        0.09       57.43
+    4 hours |      7,112        0.16       57.59
+    5 hours |      7,854        0.18       57.77
+    6 hours |      8,244        0.19       57.96
+    7 hours |      3,719        0.08       58.04
+    8 hours |     17,708        0.40       58.44
+    9 hours |      3,196        0.07       58.51
+   10 hours |     23,578        0.53       59.04
+   11 hours |      1,918        0.04       59.09
+   12 hours |     16,342        0.37       59.45
+   13 hours |      2,700        0.06       59.51
+   14 hours |      5,084        0.11       59.63
+   15 hours |     27,407        0.62       60.25
+   16 hours |     24,410        0.55       60.79
+   17 hours |      3,334        0.08       60.87
+   18 hours |      8,936        0.20       61.07
+   19 hours |      2,443        0.05       61.13
+   20 hours |     73,616        1.66       62.78
+   21 hours |      4,503        0.10       62.88
+   22 hours |      5,973        0.13       63.02
+   23 hours |      4,231        0.10       63.11
+   24 hours |     34,917        0.79       63.90
+   25 hours |     33,237        0.75       64.65
+   26 hours |      4,985        0.11       64.76
+   27 hours |      5,124        0.12       64.88
+   28 hours |     11,986        0.27       65.15
+   29 hours |      3,129        0.07       65.22
+   30 hours |     62,305        1.40       66.62
+   31 hours |      3,045        0.07       66.69
+   32 hours |     61,422        1.38       68.07
+   33 hours |      5,430        0.12       68.19
+   34 hours |      6,752        0.15       68.34
+   35 hours |     59,041        1.33       69.67
+   36 hours |     26,696        0.60       70.27
+   37 hours |     14,326        0.32       70.60
+   38 hours |     29,173        0.66       71.25
+   39 hours |      7,093        0.16       71.41
+   40 hours |    754,492       16.98       88.40
+   41 hours |      8,310        0.19       88.58
+   42 hours |     22,943        0.52       89.10
+   43 hours |     14,023        0.32       89.42
+   44 hours |     18,067        0.41       89.82
+   45 hours |     74,514        1.68       91.50
+   46 hours |     12,326        0.28       91.78
+   47 hours |      7,041        0.16       91.94
+   48 hours |     37,989        0.86       92.79
+   49 hours |      4,463        0.10       92.89
+   50 hours |    113,174        2.55       95.44
+   51 hours |      2,854        0.06       95.50
+   52 hours |     10,111        0.23       95.73
+   53 hours |      3,820        0.09       95.82
+   54 hours |      5,096        0.11       95.93
+   55 hours |     30,107        0.68       96.61
+   56 hours |      9,691        0.22       96.83
+   57 hours |      2,271        0.05       96.88
+   58 hours |      4,081        0.09       96.97
+   59 hours |      1,171        0.03       97.00
+   60 hours |     63,856        1.44       98.44
+   61 hours |      1,033        0.02       98.46
+   62 hours |      2,264        0.05       98.51
+   63 hours |      1,500        0.03       98.54
+   64 hours |      2,296        0.05       98.59
+   65 hours |     10,786        0.24       98.84
+   66 hours |      1,706        0.04       98.88
+   67 hours |        831        0.02       98.89
+   68 hours |      1,618        0.04       98.93
+   69 hours |        390        0.01       98.94
+   70 hours |     16,125        0.36       99.30
+   71 hours |        329        0.01       99.31
+   72 hours |      4,024        0.09       99.40
+   73 hours |        426        0.01       99.41
+   74 hours |        490        0.01       99.42
+   75 hours |      3,247        0.07       99.49
+   76 hours |        632        0.01       99.51
+   77 hours |        531        0.01       99.52
+   78 hours |        610        0.01       99.53
+   79 hours |        168        0.00       99.54
+   80 hours |      8,547        0.19       99.73
+   81 hours |        138        0.00       99.73
+   82 hours |        362        0.01       99.74
+   83 hours |        137        0.00       99.74
+   84 hours |      2,345        0.05       99.80
+   85 hours |        859        0.02       99.82
+   86 hours |        202        0.00       99.82
+   87 hours |        123        0.00       99.82
+   88 hours |        275        0.01       99.83
+   89 hours |         75        0.00       99.83
+   90 hours |      1,740        0.04       99.87
+   91 hours |        155        0.00       99.87
+   92 hours |        164        0.00       99.88
+   93 hours |         59        0.00       99.88
+   94 hours |        119        0.00       99.88
+   95 hours |        253        0.01       99.89
+   96 hours |        402        0.01       99.90
+   97 hours |         51        0.00       99.90
+   98 hours |        344        0.01       99.91
+   99 hours |      4,162        0.09      100.00
+------------+-----------------------------------
+      Total |  4,442,288      100.00
+
+. tab hrswork , miss nol
+
+      Hours |
+worked last |
+       week |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |  2,536,739       57.10       57.10
+          1 |      6,443        0.15       57.25
+          2 |      4,061        0.09       57.34
+          3 |      4,158        0.09       57.43
+          4 |      7,112        0.16       57.59
+          5 |      7,854        0.18       57.77
+          6 |      8,244        0.19       57.96
+          7 |      3,719        0.08       58.04
+          8 |     17,708        0.40       58.44
+          9 |      3,196        0.07       58.51
+         10 |     23,578        0.53       59.04
+         11 |      1,918        0.04       59.09
+         12 |     16,342        0.37       59.45
+         13 |      2,700        0.06       59.51
+         14 |      5,084        0.11       59.63
+         15 |     27,407        0.62       60.25
+         16 |     24,410        0.55       60.79
+         17 |      3,334        0.08       60.87
+         18 |      8,936        0.20       61.07
+         19 |      2,443        0.05       61.13
+         20 |     73,616        1.66       62.78
+         21 |      4,503        0.10       62.88
+         22 |      5,973        0.13       63.02
+         23 |      4,231        0.10       63.11
+         24 |     34,917        0.79       63.90
+         25 |     33,237        0.75       64.65
+         26 |      4,985        0.11       64.76
+         27 |      5,124        0.12       64.88
+         28 |     11,986        0.27       65.15
+         29 |      3,129        0.07       65.22
+         30 |     62,305        1.40       66.62
+         31 |      3,045        0.07       66.69
+         32 |     61,422        1.38       68.07
+         33 |      5,430        0.12       68.19
+         34 |      6,752        0.15       68.34
+         35 |     59,041        1.33       69.67
+         36 |     26,696        0.60       70.27
+         37 |     14,326        0.32       70.60
+         38 |     29,173        0.66       71.25
+         39 |      7,093        0.16       71.41
+         40 |    754,492       16.98       88.40
+         41 |      8,310        0.19       88.58
+         42 |     22,943        0.52       89.10
+         43 |     14,023        0.32       89.42
+         44 |     18,067        0.41       89.82
+         45 |     74,514        1.68       91.50
+         46 |     12,326        0.28       91.78
+         47 |      7,041        0.16       91.94
+         48 |     37,989        0.86       92.79
+         49 |      4,463        0.10       92.89
+         50 |    113,174        2.55       95.44
+         51 |      2,854        0.06       95.50
+         52 |     10,111        0.23       95.73
+         53 |      3,820        0.09       95.82
+         54 |      5,096        0.11       95.93
+         55 |     30,107        0.68       96.61
+         56 |      9,691        0.22       96.83
+         57 |      2,271        0.05       96.88
+         58 |      4,081        0.09       96.97
+         59 |      1,171        0.03       97.00
+         60 |     63,856        1.44       98.44
+         61 |      1,033        0.02       98.46
+         62 |      2,264        0.05       98.51
+         63 |      1,500        0.03       98.54
+         64 |      2,296        0.05       98.59
+         65 |     10,786        0.24       98.84
+         66 |      1,706        0.04       98.88
+         67 |        831        0.02       98.89
+         68 |      1,618        0.04       98.93
+         69 |        390        0.01       98.94
+         70 |     16,125        0.36       99.30
+         71 |        329        0.01       99.31
+         72 |      4,024        0.09       99.40
+         73 |        426        0.01       99.41
+         74 |        490        0.01       99.42
+         75 |      3,247        0.07       99.49
+         76 |        632        0.01       99.51
+         77 |        531        0.01       99.52
+         78 |        610        0.01       99.53
+         79 |        168        0.00       99.54
+         80 |      8,547        0.19       99.73
+         81 |        138        0.00       99.73
+         82 |        362        0.01       99.74
+         83 |        137        0.00       99.74
+         84 |      2,345        0.05       99.80
+         85 |        859        0.02       99.82
+         86 |        202        0.00       99.82
+         87 |        123        0.00       99.82
+         88 |        275        0.01       99.83
+         89 |         75        0.00       99.83
+         90 |      1,740        0.04       99.87
+         91 |        155        0.00       99.87
+         92 |        164        0.00       99.88
+         93 |         59        0.00       99.88
+         94 |        119        0.00       99.88
+         95 |        253        0.01       99.89
+         96 |        402        0.01       99.90
+         97 |         51        0.00       99.90
+         98 |        344        0.01       99.91
+         99 |      4,162        0.09      100.00
+------------+-----------------------------------
+      Total |  4,442,288      100.00
+
+. gen byte hrs_lw_lt20 = (hrswork < 20) & working == 1
+
+. gen byte hrs_lw_2035 = (hrswork >= 20 & hrswork < 35) & working == 1
+
+. gen byte hrs_lw_ge35 = (hrswork >= 35 & hrswork < .) & working == 1
+
+. gen byte hrs_lw_ge20 = (hrswork >= 20 & hrswork < .) & working == 1
+
+. sum hrs_lw*
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+ hrs_lw_lt20 |  4,442,288    .0400024    .1959647          0          1
+ hrs_lw_2035 |  4,442,288    .0721819     .258789          0          1
+--Break--
+r(1);
+
+end of do-file
+--Break--
+r(1);
+
+end of do-file
+--Break--
+r(1);
+
+end of do-file
+
+--Break--
+r(1);
+
+. exit, clear

@@ -1,0 +1,21 @@
+---------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\Genna\OneDrive\Documents\ECON 580 Replication\ggn-replicati
+> on-kit\create-cps-figures-extension.log
+  log type:  text
+ opened on:  23 Feb 2024, 13:43:20
+
+. do "C:\Users\Genna\AppData\Local\Temp\STDdb8_000000.tmp"
+
+. #delim cr
+delimiter now cr
+. set more off
+
+. version 12
+
+. pause on
+
+. graph set ps logo off
+
+. 
+. capture log close

@@ -1,0 +1,319 @@
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\Genna\OneDrive\Documents\ECON 580 Replication\ggn-replication-kit\do\../log/create-cps-figures.log
+  log type:  text
+ opened on:  23 Feb 2024, 13:43:23
+
+. 
+. /* --------------------------------------
+> 
+> This program runs simple regressions
+> for the Tennessee policy experiment.
+> 
+> --------------------------------------- */
+. 
+. clear all
+
+. estimates clear
+
+. set mem 500m
+set memory ignored.
+    Memory no longer needs to be set in modern Statas; memory adjustments are performed on the fly automatically.
+
+. set matsize 10000
+
+. set linesize 200
+
+. describe, short
+
+Contains data
+ Observations:             0                  
+    Variables:             0                  
+Sorted by: 
+
+. 
+. ************************************************************
+. **   Prepare CPS outcomes
+. ************************************************************
+. 
+. do fragment-prepare-cps-data.do 0
+
+. use ../src/cps_00013.dta, clear
+
+. d, f
+
+Contains data from ../src/cps_00013.dta
+ Observations:     2,405,897                  
+    Variables:           117                  23 Feb 2024 13:41
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Variable      Storage   Display    Value
+    name         type    format    label      Variable label
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+year            int     %8.0g                 Survey year
+serial          long    %12.0g                Household serial number
+hwtsupp         float   %10.4f     hwtsupp_lbl
+                                              Household weight, Supplement
+region          byte    %27.0g     region_lbl
+                                              Region and division
+statefip        byte    %57.0g     statefip_lbl
+                                              State (FIPS code)
+metro           byte    %27.0g     metro_lbl
+                                              Metropolitan central city status
+metarea         int     %50.0g     metarea_lbl
+                                              Metropolitan area
+month           byte    %9.0g      month_lbl
+                                              Month
+wtsupp          float   %10.4f                Supplement Weight
+hinswt          double  %9.0f                 Summary health insurance weight
+sploc           byte    %8.0g                 Spouse's location in household
+sprule          byte    %74.0g     sprule_lbl
+                                              Rule for linking spouse
+nchild          byte    %18.0g     nchild_lbl
+                                              Number of own children in household
+eldch           byte    %20.0g     eldch_lbl
+                                              Age of eldest own child in household
+relate          int     %34.0g     relate_lbl
+                                              Relationship to household head
+age             byte    %19.0g     age_lbl    Age
+sex             byte    %8.0g      sex_lbl    Sex
+race            int     %37.0g     race_lbl   Race
+marst           byte    %23.0g     marst_lbl
+                                              Marital status
+citizen         byte    %31.0g     citizen_lbl
+                                              Citizenship status
+educ            int     %51.0g     educ_lbl   Educational attainment recode
+higrade         int     %31.0g     higrade_lbl
+                                              Highest grade of school
+educ99          byte    %47.0g     educ99_lbl
+                                              Educational attainment, 1990
+empstat         byte    %30.0g     empstat_lbl
+                                              Employment status
+labforce        byte    %26.0g     labforce_lbl
+                                              Labor force status
+occ             int     %8.0g      occ_lbl    Occupation
+occ1990         int     %78.0g     occ1990_lbl
+                                              Occupation, 1990 basis
+occ1950         int     %60.0g     occ1950_lbl
+                                              Occupation, 1950 basis
+ind             int     %8.0g      ind_lbl    Industry
+ind1950         int     %57.0g     ind1950_lbl
+                                              Industry, 1950 basis
+wkswork1        byte    %8.0g      wkswork1_lbl
+                                              Weeks worked last year
+wkswork2        byte    %12.0g     wkswork2_lbl
+                                              Weeks worked last year, intervalled
+hrswork         byte    %8.0g      hrswork_lbl
+                                              Hours worked last week
+uhrswork        byte    %13.0g     uhrswork_lbl
+                                              Usual hours worked per week (last yr)
+hourwage        int     %8.0g                 Hourly wage
+paidhour        byte    %8.0g      paidhour_lbl
+                                              Paid by the hour
+union           byte    %33.0g     union_lbl
+                                              Union membership
+firmsize        byte    %10.0g     firmsize_lbl
+                                              Number of employees
+ftotval         double  %10.0f     ftotval_lbl
+                                              Total family income
+inctot          double  %8.0f      inctot_lbl
+                                              Total personal income
+incwage         long    %12.0g     incwage_lbl
+                                              Wage and salary income
+earnweek        int     %8.0g                 Weekly earnings
+poverty         byte    %42.0g     poverty_lbl
+                                              Official poverty status
+cutoff          long    %12.0g                Cutoff for offical poverty status, in dollars
+disabwrk        byte    %34.0g     disabwrk_lbl
+                                              Work disability
+health          byte    %9.0g      health_lbl
+                                              Health status
+migsta1         byte    %20.0g     migsta1_lbl
+                                              State of residence 1 year ago
+migrate1        byte    %36.0g     migrate1_lbl
+                                              Migration status, 1 year
+hcovany         byte    %11.0g     hcovany_lbl
+                                              Any insurance, public or private (summary)
+hcovpriv        byte    %11.0g     hcovpriv_lbl
+                                              Any private insurance (summary)
+hinsemp         byte    %11.0g     hinsemp_lbl
+                                              Employer-sponsored insurance (summary)
+hinspur         byte    %11.0g     hinspur_lbl
+                                              Individually purchased insurance (summary)
+hcovpub         byte    %11.0g     hcovpub_lbl
+                                              Any public insurance (summary)
+hinscaid        byte    %11.0g     hinscaid_lbl
+                                              Any Medicaid/SCHIP/other public insurance (summary)
+hinscare        byte    %11.0g     hinscare_lbl
+                                              Medicare coverage (summary)
+hinsmil         byte    %11.0g     hinsmil_lbl
+                                              Any military insurance (summary)
+inclugh         byte    %8.0g      inclugh_lbl
+                                              Included in employer group health plan last year
+paidgh          byte    %18.0g     paidgh_lbl
+                                              Employer paid for group health plan
+emcontrb        int     %8.0g      emcontrb_lbl
+                                              Employer contribution for health insurance
+himcaid         byte    %8.0g      himcaid_lbl
+                                              Covered by Medicaid last year
+himcare         byte    %8.0g      himcare_lbl
+                                              Covered by Medicare last year
+hichamp         byte    %8.0g      hichamp_lbl
+                                              Covered by military health insurance last year
+phinsur         byte    %8.0g      phinsur_lbl
+                                              Reported covered by private health insurance last year
+phiown          byte    %8.0g      phiown_lbl
+                                              Private health insurance in own name last year
+caid            byte    %8.0g      caid_lbl   Covered by Medicaid last year
+care            byte    %8.0g      care_lbl   Covered by Medicare last year
+champus         byte    %8.0g      champus_lbl
+                                              Covered by Champus/Tricare last year
+champva         byte    %8.0g      champva_lbl
+                                              Covered by CHAMPVA last year
+militva         byte    %37.0g     militva_lbl
+                                              Covered by VA or Military health care last year
+indianh         byte    %8.0g      indianh_lbl
+                                              Covered by Indian Health Service last year
+groupown        byte    %8.0g      groupown_lbl
+                                              Policyholder for employment-based insurance last year
+groupdep        byte    %8.0g      groupdep_lbl
+                                              Dependent covered by employment-based insurance last year
+privown         byte    %8.0g      privown_lbl
+                                              Policyholder for privately-purchased insurance last year
+privdep         byte    %8.0g      privdep_lbl
+                                              Dependent covered by privately-purchased insurance last year
+grouptyp        byte    %17.0g     grouptyp_lbl
+                                              Type of employment-based coverage last year
+privtyp         byte    %17.0g     privtyp_lbl
+                                              Type of privately-purchased coverage last year
+grpwho1         byte    %44.0g     grpwho1_lbl
+                                              Line number of first policyholder of employment-based insurance
+grpwho2         byte    %44.0g     grpwho2_lbl
+                                              Line number of second policyholder of employment-based insurance
+privwho1        byte    %46.0g     privwho1_lbl
+                                              Line number of first policyholder of privately-purchased insurance
+privwho2        byte    %46.0g     privwho2_lbl
+                                              Line number of second policyholder of privately-purchased insurance
+mocaid          byte    %8.0g      mocaid_lbl
+                                              Months of Medicaid coverage last year
+schip           byte    %8.0g      schip_lbl
+                                              State Children's Health Insurance Program coverage last year
+verify          byte    %13.0g     verify_lbl
+                                              Verification: Did individual actually have health insurance
+groupout        byte    %8.0g      groupout_lbl
+                                              Employment-based insurance covered non-household member
+privout         byte    %8.0g      privout_lbl
+                                              Privately-purchased insurance covered non-household member
+out             byte    %8.0g      out_lbl    Covered by policy of person outside the household
+covergh         byte    %8.0g      covergh_lbl
+                                              Covered by group health insurance, last year
+coverpi         byte    %8.0g      coverpi_lbl
+                                              Covered by private health insurance, last year
+yngch           byte    %8.0g                 Age of youngest own child in household
+own_kid         float   %9.0g                 
+min_age         float   %9.0g                 
+max_age         float   %9.0g                 
+kid             float   %9.0g                 
+any_ind         float   %9.0g                 
+has_spouse      float   %9.0g                 
+verifs          float   %9.0g                 
+any_public      byte    %8.0g                 
+any_private     byte    %8.0g                 
+any_coverage    byte    %8.0g                 
+any_empl        float   %9.0g                 
+working         byte    %8.0g                 
+working_alt     byte    %8.0g                 
+unemp           byte    %8.0g                 
+ilf             byte    %8.0g                 
+any_mcaid       float   %9.0g                 
+any_mcare       float   %9.0g                 
+any_priv_wk     byte    %8.0g                 
+any_priv_nowk   byte    %8.0g                 
+any_empl_wk     byte    %8.0g                 
+any_noempl_wk   byte    %8.0g                 
+any_nocov_wk    byte    %8.0g                 
+any_cov_wk      byte    %8.0g                 
+hrs_lw_lt20     byte    %8.0g                 
+hrs_lw_2035     byte    %8.0g                 
+hrs_lw_ge35     byte    %8.0g                 
+hrs_lw_ge20     byte    %8.0g                 
+wage            float   %9.0g                 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Sorted by: year  serial  age
+
+. 
+. ************************************************************
+. **   Restrict to South and key years
+. ************************************************************
+. 
+. if (`1' > 0 & `1' < 13) {
+.         gen south = ///
+>          (statefip == 54 | ///
+>           statefip == 21 | statefip == 47 | ///
+>           statefip == 37 | statefip == 51 | statefip == 45 | statefip == 13 | ///
+>           statefip ==  5 | statefip == 22 | statefip == 48 | statefip == 40 | ///
+>           statefip ==  1 | statefip == 28 | statefip == 12 )
+.         
+.         keep if south == 1
+.         keep if year >= 1999 & year <= 2013
+. }
+
+. 
+. 
+. ************************************************************
+. **   Identify those with kids
+. ************************************************************
+. 
+. sort year serial
+
+. merge year serial using ../dta/cps_yngch.dta, uniqusing
+(you are using old merge syntax; see [D] merge for new syntax)
+variables year serial do not uniquely identify observations in the master data
+
+. tab year _merge, missing
+
+    Survey |              _merge
+      year |         1          2          3 |     Total
+-----------+---------------------------------+----------
+      1986 |    80,667          0          0 |    80,667 
+      1987 |    79,484          0          0 |    79,484 
+      1988 |    79,486          0          0 |    79,486 
+      1989 |    73,539          0          0 |    73,539 
+      1990 |    80,711          0          0 |    80,711 
+      1991 |    80,839          0          0 |    80,839 
+      1992 |    81,348          0          0 |    81,348 
+      1993 |    80,549          0          0 |    80,549 
+      1994 |    77,851          0          0 |    77,851 
+      1995 |    77,131          0          0 |    77,131 
+      1996 |    67,097          0          0 |    67,097 
+      1997 |    68,065          0          0 |    68,065 
+      1998 |    68,154          0          0 |    68,154 
+      1999 |    68,483          0          0 |    68,483 
+      2000 |    47,967      3,457     21,419 |    72,843 
+      2001 |    77,921      4,361     32,107 |   114,389 
+      2002 |    77,484      4,443     31,902 |   113,829 
+      2003 |    77,278      4,364     32,127 |   113,769 
+      2004 |    76,062      4,412     31,698 |   112,172 
+      2005 |    73,680      4,589     32,583 |   110,852 
+      2006 |    72,424      4,702     33,101 |   110,227 
+      2007 |    71,509      4,599     33,043 |   109,151 
+      2008 |    71,164      4,839     33,014 |   109,017 
+      2009 |    71,817      5,013     32,761 |   109,591 
+      2010 |    72,505      4,985     33,599 |   111,089 
+      2011 |    70,819      4,963     33,005 |   108,787 
+      2012 |    69,162      4,993     32,342 |   106,497 
+-----------+---------------------------------+----------
+     Total | 1,993,196     59,720    412,701 | 2,465,617 
+
+. assert _merge != 2 if year >= 2000
+59,720 contradictions in 1,402,213 observations
+assertion is false
+r(9);
+
+end of do-file
+r(9);
+
+end of do-file
+
+r(9);
+
+. exit, clear

@@ -1,0 +1,29 @@
+---------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\Genna\OneDrive\Documents\ECON 580 Replication\ggn-replicati
+> on-kit\Create CPS Tables Extension.log
+  log type:  text
+ opened on:  23 Feb 2024, 12:54:54
+
+. do "C:\Users\Genna\OneDrive\Documents\ECON 580 Replication\ggn-replication-kit\
+> do\run-cps-main-tables-extension.do"
+
+. #delim cr
+delimiter now cr
+. set more off
+
+. version 12
+
+. pause on
+
+. graph set ps logo off
+
+. 
+. args piece
+
+. if "`piece'" == "all" {
+.         disp "Please feed the program a set of regressions to run."
+. }
+
+. 
+. capture log close

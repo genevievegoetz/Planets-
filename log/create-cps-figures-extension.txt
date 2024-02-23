@@ -1,0 +1,3446 @@
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\Genna\OneDrive\Documents\ECON 580 Replication\ggn-replication-kit\do\../log/create-cps-figures.log
+  log type:  text
+ opened on:  21 Feb 2024, 17:04:26
+
+. 
+. /* --------------------------------------
+> 
+> This program runs simple regressions
+> for the Tennessee policy experiment.
+> 
+> --------------------------------------- */
+. 
+. clear all
+
+. estimates clear
+
+. set mem 500m
+set memory ignored.
+    Memory no longer needs to be set in modern Statas; memory adjustments are performed on the fly automatically.
+
+. set matsize 10000
+
+. set linesize 200
+
+. describe, short
+
+Contains data
+ Observations:             0                  
+    Variables:             0                  
+Sorted by: 
+
+. 
+. ************************************************************
+. **   Prepare CPS outcomes
+. ************************************************************
+. 
+. do fragment-prepare-cps-data.do 0
+
+. use ../src/cps_00013.dta, clear
+
+. d, f
+
+Contains data from ../src/cps_00013.dta
+ Observations:     4,723,421                  
+    Variables:            88                  15 Feb 2024 10:29
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Variable      Storage   Display    Value
+    name         type    format    label      Variable label
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+year            int     %8.0g                 Survey year
+serial          long    %12.0g                Household serial number
+hwtsupp         float   %10.4f     hwtsupp_lbl
+                                              Household weight, Supplement
+region          byte    %27.0g     region_lbl
+                                              Region and division
+statefip        byte    %57.0g     statefip_lbl
+                                              State (FIPS code)
+metro           byte    %27.0g     metro_lbl
+                                              Metropolitan central city status
+metarea         int     %50.0g     metarea_lbl
+                                              Metropolitan area
+month           byte    %9.0g      month_lbl
+                                              Month
+wtsupp          float   %10.4f                Supplement Weight
+hinswt          double  %9.0f                 Summary health insurance weight
+sploc           byte    %8.0g                 Spouse's location in household
+sprule          byte    %74.0g     sprule_lbl
+                                              Rule for linking spouse
+nchild          byte    %18.0g     nchild_lbl
+                                              Number of own children in household
+eldch           byte    %20.0g     eldch_lbl
+                                              Age of eldest own child in household
+relate          int     %34.0g     relate_lbl
+                                              Relationship to household head
+age             byte    %19.0g     age_lbl    Age
+sex             byte    %8.0g      sex_lbl    Sex
+race            int     %37.0g     race_lbl   Race
+marst           byte    %23.0g     marst_lbl
+                                              Marital status
+citizen         byte    %31.0g     citizen_lbl
+                                              Citizenship status
+educ            int     %51.0g     educ_lbl   Educational attainment recode
+higrade         int     %31.0g     higrade_lbl
+                                              Highest grade of school
+educ99          byte    %47.0g     educ99_lbl
+                                              Educational attainment, 1990
+empstat         byte    %30.0g     empstat_lbl
+                                              Employment status
+labforce        byte    %26.0g     labforce_lbl
+                                              Labor force status
+occ             int     %8.0g      occ_lbl    Occupation
+occ1990         int     %78.0g     occ1990_lbl
+                                              Occupation, 1990 basis
+occ1950         int     %60.0g     occ1950_lbl
+                                              Occupation, 1950 basis
+ind             int     %8.0g      ind_lbl    Industry
+ind1950         int     %57.0g     ind1950_lbl
+                                              Industry, 1950 basis
+wkswork1        byte    %8.0g      wkswork1_lbl
+                                              Weeks worked last year
+wkswork2        byte    %12.0g     wkswork2_lbl
+                                              Weeks worked last year, intervalled
+hrswork         byte    %8.0g      hrswork_lbl
+                                              Hours worked last week
+uhrswork        byte    %13.0g     uhrswork_lbl
+                                              Usual hours worked per week (last yr)
+hourwage        int     %8.0g                 Hourly wage
+paidhour        byte    %8.0g      paidhour_lbl
+                                              Paid by the hour
+union           byte    %33.0g     union_lbl
+                                              Union membership
+firmsize        byte    %10.0g     firmsize_lbl
+                                              Number of employees
+ftotval         double  %10.0f     ftotval_lbl
+                                              Total family income
+inctot          double  %8.0f      inctot_lbl
+                                              Total personal income
+incwage         long    %12.0g     incwage_lbl
+                                              Wage and salary income
+earnweek        int     %8.0g                 Weekly earnings
+poverty         byte    %42.0g     poverty_lbl
+                                              Official poverty status
+cutoff          long    %12.0g                Cutoff for offical poverty status, in dollars
+disabwrk        byte    %34.0g     disabwrk_lbl
+                                              Work disability
+health          byte    %9.0g      health_lbl
+                                              Health status
+migsta1         byte    %20.0g     migsta1_lbl
+                                              State of residence 1 year ago
+migrate1        byte    %36.0g     migrate1_lbl
+                                              Migration status, 1 year
+hcovany         byte    %11.0g     hcovany_lbl
+                                              Any insurance, public or private (summary)
+hcovpriv        byte    %11.0g     hcovpriv_lbl
+                                              Any private insurance (summary)
+hinsemp         byte    %11.0g     hinsemp_lbl
+                                              Employer-sponsored insurance (summary)
+hinspur         byte    %11.0g     hinspur_lbl
+                                              Individually purchased insurance (summary)
+hcovpub         byte    %11.0g     hcovpub_lbl
+                                              Any public insurance (summary)
+hinscaid        byte    %11.0g     hinscaid_lbl
+                                              Any Medicaid/SCHIP/other public insurance (summary)
+hinscare        byte    %11.0g     hinscare_lbl
+                                              Medicare coverage (summary)
+hinsmil         byte    %11.0g     hinsmil_lbl
+                                              Any military insurance (summary)
+inclugh         byte    %8.0g      inclugh_lbl
+                                              Included in employer group health plan last year
+paidgh          byte    %18.0g     paidgh_lbl
+                                              Employer paid for group health plan
+emcontrb        int     %8.0g      emcontrb_lbl
+                                              Employer contribution for health insurance
+himcaid         byte    %8.0g      himcaid_lbl
+                                              Covered by Medicaid last year
+himcare         byte    %8.0g      himcare_lbl
+                                              Covered by Medicare last year
+hichamp         byte    %8.0g      hichamp_lbl
+                                              Covered by military health insurance last year
+phinsur         byte    %8.0g      phinsur_lbl
+                                              Reported covered by private health insurance last year
+phiown          byte    %8.0g      phiown_lbl
+                                              Private health insurance in own name last year
+caid            byte    %8.0g      caid_lbl   Covered by Medicaid last year
+care            byte    %8.0g      care_lbl   Covered by Medicare last year
+champus         byte    %8.0g      champus_lbl
+                                              Covered by Champus/Tricare last year
+champva         byte    %8.0g      champva_lbl
+                                              Covered by CHAMPVA last year
+militva         byte    %37.0g     militva_lbl
+                                              Covered by VA or Military health care last year
+indianh         byte    %8.0g      indianh_lbl
+                                              Covered by Indian Health Service last year
+groupown        byte    %8.0g      groupown_lbl
+                                              Policyholder for employment-based insurance last year
+groupdep        byte    %8.0g      groupdep_lbl
+                                              Dependent covered by employment-based insurance last year
+privown         byte    %8.0g      privown_lbl
+                                              Policyholder for privately-purchased insurance last year
+privdep         byte    %8.0g      privdep_lbl
+                                              Dependent covered by privately-purchased insurance last year
+grouptyp        byte    %17.0g     grouptyp_lbl
+                                              Type of employment-based coverage last year
+privtyp         byte    %17.0g     privtyp_lbl
+                                              Type of privately-purchased coverage last year
+grpwho1         byte    %44.0g     grpwho1_lbl
+                                              Line number of first policyholder of employment-based insurance
+grpwho2         byte    %44.0g     grpwho2_lbl
+                                              Line number of second policyholder of employment-based insurance
+privwho1        byte    %46.0g     privwho1_lbl
+                                              Line number of first policyholder of privately-purchased insurance
+privwho2        byte    %46.0g     privwho2_lbl
+                                              Line number of second policyholder of privately-purchased insurance
+mocaid          byte    %8.0g      mocaid_lbl
+                                              Months of Medicaid coverage last year
+schip           byte    %8.0g      schip_lbl
+                                              State Children's Health Insurance Program coverage last year
+verify          byte    %13.0g     verify_lbl
+                                              Verification: Did individual actually have health insurance
+groupout        byte    %8.0g      groupout_lbl
+                                              Employment-based insurance covered non-household member
+privout         byte    %8.0g      privout_lbl
+                                              Privately-purchased insurance covered non-household member
+out             byte    %8.0g      out_lbl    Covered by policy of person outside the household
+covergh         byte    %8.0g      covergh_lbl
+                                              Covered by group health insurance, last year
+coverpi         byte    %8.0g      coverpi_lbl
+                                              Covered by private health insurance, last year
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Sorted by: 
+
+. 
+. ************************************************************
+. **   Restrict to South and key years
+. ************************************************************
+. 
+. if (`1' > 0 & `1' < 13) {
+.         gen south = ///
+>          (statefip == 54 | ///
+>           statefip == 21 | statefip == 47 | ///
+>           statefip == 37 | statefip == 51 | statefip == 45 | statefip == 13 | ///
+>           statefip ==  5 | statefip == 22 | statefip == 48 | statefip == 40 | ///
+>           statefip ==  1 | statefip == 28 | statefip == 12 )
+.         
+.         keep if south == 1
+.         keep if year >= 1999 & year <= 2013
+. }
+
+. 
+. 
+. ************************************************************
+. **   Identify those with kids
+. ************************************************************
+. 
+. sort year serial
+
+. merge year serial using ../dta/cps_yngch.dta, uniqusing
+(you are using old merge syntax; see [D] merge for new syntax)
+variables year serial do not uniquely identify observations in the master data
+
+. tab year _merge, missing
+
+    Survey |        _merge
+      year |         1          3 |     Total
+-----------+----------------------+----------
+      1986 |   157,661          0 |   157,661 
+      1987 |   155,468          0 |   155,468 
+      1988 |   155,980          0 |   155,980 
+      1989 |   144,687          0 |   144,687 
+      1990 |   158,079          0 |   158,079 
+      1991 |   158,477          0 |   158,477 
+      1992 |   155,796          0 |   155,796 
+      1993 |   155,197          0 |   155,197 
+      1994 |   150,943          0 |   150,943 
+      1995 |   149,642          0 |   149,642 
+      1996 |   130,476          0 |   130,476 
+      1997 |   131,854          0 |   131,854 
+      1998 |   131,617          0 |   131,617 
+      1999 |   132,324          0 |   132,324 
+      2000 |    92,832     40,878 |   133,710 
+      2001 |   155,382     62,887 |   218,269 
+      2002 |   154,402     62,817 |   217,219 
+      2003 |   153,556     62,868 |   216,424 
+      2004 |   151,486     61,755 |   213,241 
+      2005 |   146,802     63,846 |   210,648 
+      2006 |   143,672     64,890 |   208,562 
+      2007 |   142,003     64,636 |   206,639 
+      2008 |   141,342     65,062 |   206,404 
+      2009 |   142,982     64,939 |   207,921 
+      2010 |   143,713     66,089 |   209,802 
+      2011 |   140,150     64,833 |   204,983 
+      2012 |   137,752     63,646 |   201,398 
+-----------+----------------------+----------
+     Total | 3,914,275    809,146 | 4,723,421 
+
+. assert _merge != 2 if year >= 2000
+
+. drop _merge
+
+. gen own_kid = yngch < 18
+
+. 
+. sort year serial age
+
+. by year serial: gen min_age = age[1]
+
+. by year serial: gen max_age = age[_N]
+
+. summ min_age ,det
+
+                           min_age
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%            0              0
+ 5%            0              0
+10%            1              0       Obs           4,723,421
+25%            4              0       Sum of wgt.   4,723,421
+
+50%           13                      Mean           21.60281
+                        Largest       Std. dev.      22.54444
+75%           31             99
+90%           61             99       Variance        508.252
+95%           70             99       Skewness       1.175761
+99%           80             99       Kurtosis       3.207245
+
+. gen kid = (min_age < 18)
+
+. 
+. replace inctot = . if inctot == 99999999 
+(1,132,597 real changes made, 1,132,597 to missing)
+
+. replace inctot = . if inctot == 99999998 
+(0 real changes made)
+
+. 
+. ************************************************************
+. **   Restrictions on age and education
+. ************************************************************
+. 
+. if (`1' == 11) {
+.         keep if age >= 66
+.         keep if educ <= 111
+. }
+
+. if (`1' != 11 & `1' != 13) {
+.         keep if age >= 21 & age < 65
+(2,069,696 observations deleted)
+.         keep if educ <= 111
+(233,507 observations deleted)
+. }
+
+. if (`1' == 13) {
+.         keep if educ <= 111
+. }
+
+. 
+. ************************************************************
+. **   Create key variables
+. ************************************************************
+. 
+. gen any_ind = (hinspur == 2)
+
+. 
+. gen has_spouse = (sploc != 0)
+
+. 
+. ** Impose no private h.i. if on Medicaid for 2003
+. gen verifs = (himcaid == 2 & hcovpriv == 2)
+
+. bys year: tab verifs if statefip == 47, missing
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1986
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        945      100.00      100.00
+------------+-----------------------------------
+      Total |        945      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1987
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        951      100.00      100.00
+------------+-----------------------------------
+      Total |        951      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1988
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        947       99.47       99.47
+          1 |          5        0.53      100.00
+------------+-----------------------------------
+      Total |        952      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1989
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        952       99.17       99.17
+          1 |          8        0.83      100.00
+------------+-----------------------------------
+      Total |        960      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1990
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        914       99.24       99.24
+          1 |          7        0.76      100.00
+------------+-----------------------------------
+      Total |        921      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1991
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        936       98.84       98.84
+          1 |         11        1.16      100.00
+------------+-----------------------------------
+      Total |        947      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1992
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,027       98.94       98.94
+          1 |         11        1.06      100.00
+------------+-----------------------------------
+      Total |      1,038      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1993
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,039       98.86       98.86
+          1 |         12        1.14      100.00
+------------+-----------------------------------
+      Total |      1,051      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1994
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        965       98.77       98.77
+          1 |         12        1.23      100.00
+------------+-----------------------------------
+      Total |        977      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1995
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        842       94.39       94.39
+          1 |         50        5.61      100.00
+------------+-----------------------------------
+      Total |        892      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1996
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        827       96.95       96.95
+          1 |         26        3.05      100.00
+------------+-----------------------------------
+      Total |        853      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1997
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        844       94.73       94.73
+          1 |         47        5.27      100.00
+------------+-----------------------------------
+      Total |        891      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1998
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        870       96.67       96.67
+          1 |         30        3.33      100.00
+------------+-----------------------------------
+      Total |        900      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 1999
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        922       98.40       98.40
+          1 |         15        1.60      100.00
+------------+-----------------------------------
+      Total |        937      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2000
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        910       98.27       98.27
+          1 |         16        1.73      100.00
+------------+-----------------------------------
+      Total |        926      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2001
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,337       97.38       97.38
+          1 |         36        2.62      100.00
+------------+-----------------------------------
+      Total |      1,373      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2002
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,354       98.04       98.04
+          1 |         27        1.96      100.00
+------------+-----------------------------------
+      Total |      1,381      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2003
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,375       96.97       96.97
+          1 |         43        3.03      100.00
+------------+-----------------------------------
+      Total |      1,418      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2004
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,292       97.95       97.95
+          1 |         27        2.05      100.00
+------------+-----------------------------------
+      Total |      1,319      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2005
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,424       97.87       97.87
+          1 |         31        2.13      100.00
+------------+-----------------------------------
+      Total |      1,455      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2006
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,446       97.90       97.90
+          1 |         31        2.10      100.00
+------------+-----------------------------------
+      Total |      1,477      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2007
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,382       99.00       99.00
+          1 |         14        1.00      100.00
+------------+-----------------------------------
+      Total |      1,396      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2008
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,371       98.35       98.35
+          1 |         23        1.65      100.00
+------------+-----------------------------------
+      Total |      1,394      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2009
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,339       98.24       98.24
+          1 |         24        1.76      100.00
+------------+-----------------------------------
+      Total |      1,363      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2010
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,350       98.47       98.47
+          1 |         21        1.53      100.00
+------------+-----------------------------------
+      Total |      1,371      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2011
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,360       98.34       98.34
+          1 |         23        1.66      100.00
+------------+-----------------------------------
+      Total |      1,383      100.00
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-> year = 2012
+
+     verifs |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,339       97.31       97.31
+          1 |         37        2.69      100.00
+------------+-----------------------------------
+      Total |      1,376      100.00
+
+
+. replace hcovpriv = . if himcaid == 2 & (year == 2003)
+(8,119 real changes made, 8,119 to missing)
+
+. 
+. tab hcovpub , miss
+
+ Any public |
+  insurance |
+  (summary) |      Freq.     Percent        Cum.
+------------+-----------------------------------
+Not covered |  1,959,351       80.96       80.96
+    Covered |    299,526       12.38       93.33
+          . |    161,341        6.67      100.00
+------------+-----------------------------------
+      Total |  2,420,218      100.00
+
+. gen byte any_public = (hcovpub == 2)
+
+. 
+. tab hcovpriv , miss
+
+Any private |
+  insurance |
+  (summary) |      Freq.     Percent        Cum.
+------------+-----------------------------------
+Not covered |    617,477       25.51       25.51
+    Covered |  1,633,281       67.48       93.00
+          . |    169,460        7.00      100.00
+------------+-----------------------------------
+      Total |  2,420,218      100.00
+
+. gen byte any_private = (hcovpriv == 2)
+
+. 
+. ** We have found evidence that some publicly insured CPS respondents are
+. ** mis-reporting their coverage is private. We remove this small group here.
+. replace any_private = 0 if any_ind == 1
+(123,388 real changes made)
+
+. 
+. tab hcovany , miss
+
+        Any |
+ insurance, |
+  public or |
+    private |
+  (summary) |      Freq.     Percent        Cum.
+------------+-----------------------------------
+Not covered |    413,750       17.10       17.10
+    Covered |  1,845,127       76.24       93.33
+          . |    161,341        6.67      100.00
+------------+-----------------------------------
+      Total |  2,420,218      100.00
+
+. gen byte any_coverage = (hcovany == 2)
+
+. 
+. gen any_empl = (hinsemp == 2)
+
+. 
+. ** Drop armed forces(see IPUMS-CPS)
+. ** Only working if have positive hours
+. drop if empstat == 13
+(14,321 observations deleted)
+
+. gen byte working = (empstat == 10)
+
+. 
+. gen byte working_alt = (empstat >= 10 & empstat <= 12)
+
+. 
+. gen byte unemp = (empstat >= 20 & empstat <= 22)
+
+. 
+. gen byte ilf = (empstat >= 10 & empstat <= 22)
+
+. 
+. gen any_mcaid  = (himcaid == 2)
+
+. gen any_mcare  = (himcare == 2)
+
+. 
+. gen byte any_priv_wk   = (hcovpriv == 2 & working == 1)
+
+. gen byte any_priv_nowk = (hcovpriv == 2 & working == 0)
+
+. 
+. gen byte any_empl_wk = (any_empl == 1 & working == 1)
+
+. gen byte any_noempl_wk = (any_empl == 0 & working == 1)
+
+.  
+. gen byte any_nocov_wk     = (any_coverage == 0 & working == 1)
+
+. gen byte any_cov_wk     = (any_coverage == 1 & working == 1)
+
+. 
+. tab hrswork , miss
+
+      Hours |
+worked last |
+       week |      Freq.     Percent        Cum.
+------------+-----------------------------------
+        NIU |    698,020       29.01       29.01
+     1 hour |      5,170        0.21       29.23
+    2 hours |      2,349        0.10       29.33
+    3 hours |      2,173        0.09       29.42
+    4 hours |      3,675        0.15       29.57
+    5 hours |      4,335        0.18       29.75
+    6 hours |      4,187        0.17       29.92
+    7 hours |      1,966        0.08       30.00
+    8 hours |     10,855        0.45       30.46
+    9 hours |      1,767        0.07       30.53
+   10 hours |     13,181        0.55       31.08
+   11 hours |      1,112        0.05       31.12
+   12 hours |      8,943        0.37       31.49
+   13 hours |      1,692        0.07       31.57
+   14 hours |      3,126        0.13       31.70
+   15 hours |     15,442        0.64       32.34
+   16 hours |     17,676        0.73       33.07
+   17 hours |      2,259        0.09       33.17
+   18 hours |      5,848        0.24       33.41
+   19 hours |      1,787        0.07       33.48
+   20 hours |     49,854        2.07       35.56
+   21 hours |      3,406        0.14       35.70
+   22 hours |      4,575        0.19       35.89
+   23 hours |      3,253        0.14       36.02
+   24 hours |     29,891        1.24       37.26
+   25 hours |     25,203        1.05       38.31
+   26 hours |      4,086        0.17       38.48
+   27 hours |      4,282        0.18       38.66
+   28 hours |     10,032        0.42       39.08
+   29 hours |      2,714        0.11       39.19
+   30 hours |     52,112        2.17       41.36
+   31 hours |      2,723        0.11       41.47
+   32 hours |     56,727        2.36       43.83
+   33 hours |      4,866        0.20       44.03
+   34 hours |      6,214        0.26       44.29
+   35 hours |     52,576        2.19       46.47
+   36 hours |     24,878        1.03       47.51
+   37 hours |     13,452        0.56       48.07
+   38 hours |     27,496        1.14       49.21
+   39 hours |      6,661        0.28       49.49
+   40 hours |    716,971       29.80       79.29
+   41 hours |      7,949        0.33       79.62
+   42 hours |     21,951        0.91       80.53
+   43 hours |     13,493        0.56       81.09
+   44 hours |     17,404        0.72       81.81
+   45 hours |     72,014        2.99       84.81
+   46 hours |     11,890        0.49       85.30
+   47 hours |      6,809        0.28       85.58
+   48 hours |     36,569        1.52       87.10
+   49 hours |      4,286        0.18       87.28
+   50 hours |    109,850        4.57       91.85
+   51 hours |      2,755        0.11       91.96
+   52 hours |      9,801        0.41       92.37
+   53 hours |      3,701        0.15       92.52
+   54 hours |      4,911        0.20       92.73
+   55 hours |     29,317        1.22       93.95
+   56 hours |      9,343        0.39       94.33
+   57 hours |      2,192        0.09       94.43
+   58 hours |      3,960        0.16       94.59
+   59 hours |      1,129        0.05       94.64
+   60 hours |     61,928        2.57       97.21
+   61 hours |      1,010        0.04       97.25
+   62 hours |      2,200        0.09       97.34
+   63 hours |      1,445        0.06       97.40
+   64 hours |      2,214        0.09       97.50
+   65 hours |     10,488        0.44       97.93
+   66 hours |      1,645        0.07       98.00
+   67 hours |        800        0.03       98.03
+   68 hours |      1,558        0.06       98.10
+   69 hours |        382        0.02       98.11
+   70 hours |     15,572        0.65       98.76
+   71 hours |        317        0.01       98.77
+   72 hours |      3,876        0.16       98.94
+   73 hours |        412        0.02       98.95
+   74 hours |        471        0.02       98.97
+   75 hours |      3,148        0.13       99.10
+   76 hours |        617        0.03       99.13
+   77 hours |        495        0.02       99.15
+   78 hours |        595        0.02       99.17
+   79 hours |        162        0.01       99.18
+   80 hours |      8,311        0.35       99.53
+   81 hours |        129        0.01       99.53
+   82 hours |        348        0.01       99.55
+   83 hours |        130        0.01       99.55
+   84 hours |      2,214        0.09       99.64
+   85 hours |        839        0.03       99.68
+   86 hours |        198        0.01       99.69
+   87 hours |        119        0.00       99.69
+   88 hours |        266        0.01       99.70
+   89 hours |         71        0.00       99.71
+   90 hours |      1,680        0.07       99.78
+   91 hours |        150        0.01       99.78
+   92 hours |        158        0.01       99.79
+   93 hours |         58        0.00       99.79
+   94 hours |        113        0.00       99.80
+   95 hours |        246        0.01       99.81
+   96 hours |        386        0.02       99.82
+   97 hours |         49        0.00       99.82
+   98 hours |        329        0.01       99.84
+   99 hours |      3,909        0.16      100.00
+------------+-----------------------------------
+      Total |  2,405,897      100.00
+
+. tab hrswork , miss nol
+
+      Hours |
+worked last |
+       week |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |    698,020       29.01       29.01
+          1 |      5,170        0.21       29.23
+          2 |      2,349        0.10       29.33
+          3 |      2,173        0.09       29.42
+          4 |      3,675        0.15       29.57
+          5 |      4,335        0.18       29.75
+          6 |      4,187        0.17       29.92
+          7 |      1,966        0.08       30.00
+          8 |     10,855        0.45       30.46
+          9 |      1,767        0.07       30.53
+         10 |     13,181        0.55       31.08
+         11 |      1,112        0.05       31.12
+         12 |      8,943        0.37       31.49
+         13 |      1,692        0.07       31.57
+         14 |      3,126        0.13       31.70
+         15 |     15,442        0.64       32.34
+         16 |     17,676        0.73       33.07
+         17 |      2,259        0.09       33.17
+         18 |      5,848        0.24       33.41
+         19 |      1,787        0.07       33.48
+         20 |     49,854        2.07       35.56
+         21 |      3,406        0.14       35.70
+         22 |      4,575        0.19       35.89
+         23 |      3,253        0.14       36.02
+         24 |     29,891        1.24       37.26
+         25 |     25,203        1.05       38.31
+         26 |      4,086        0.17       38.48
+         27 |      4,282        0.18       38.66
+         28 |     10,032        0.42       39.08
+         29 |      2,714        0.11       39.19
+         30 |     52,112        2.17       41.36
+         31 |      2,723        0.11       41.47
+         32 |     56,727        2.36       43.83
+         33 |      4,866        0.20       44.03
+         34 |      6,214        0.26       44.29
+         35 |     52,576        2.19       46.47
+         36 |     24,878        1.03       47.51
+         37 |     13,452        0.56       48.07
+         38 |     27,496        1.14       49.21
+         39 |      6,661        0.28       49.49
+         40 |    716,971       29.80       79.29
+         41 |      7,949        0.33       79.62
+         42 |     21,951        0.91       80.53
+         43 |     13,493        0.56       81.09
+         44 |     17,404        0.72       81.81
+         45 |     72,014        2.99       84.81
+         46 |     11,890        0.49       85.30
+         47 |      6,809        0.28       85.58
+         48 |     36,569        1.52       87.10
+         49 |      4,286        0.18       87.28
+         50 |    109,850        4.57       91.85
+         51 |      2,755        0.11       91.96
+         52 |      9,801        0.41       92.37
+         53 |      3,701        0.15       92.52
+         54 |      4,911        0.20       92.73
+         55 |     29,317        1.22       93.95
+         56 |      9,343        0.39       94.33
+         57 |      2,192        0.09       94.43
+         58 |      3,960        0.16       94.59
+         59 |      1,129        0.05       94.64
+         60 |     61,928        2.57       97.21
+         61 |      1,010        0.04       97.25
+         62 |      2,200        0.09       97.34
+         63 |      1,445        0.06       97.40
+         64 |      2,214        0.09       97.50
+         65 |     10,488        0.44       97.93
+         66 |      1,645        0.07       98.00
+         67 |        800        0.03       98.03
+         68 |      1,558        0.06       98.10
+         69 |        382        0.02       98.11
+         70 |     15,572        0.65       98.76
+         71 |        317        0.01       98.77
+         72 |      3,876        0.16       98.94
+         73 |        412        0.02       98.95
+         74 |        471        0.02       98.97
+         75 |      3,148        0.13       99.10
+         76 |        617        0.03       99.13
+         77 |        495        0.02       99.15
+         78 |        595        0.02       99.17
+         79 |        162        0.01       99.18
+         80 |      8,311        0.35       99.53
+         81 |        129        0.01       99.53
+         82 |        348        0.01       99.55
+         83 |        130        0.01       99.55
+         84 |      2,214        0.09       99.64
+         85 |        839        0.03       99.68
+         86 |        198        0.01       99.69
+         87 |        119        0.00       99.69
+         88 |        266        0.01       99.70
+         89 |         71        0.00       99.71
+         90 |      1,680        0.07       99.78
+         91 |        150        0.01       99.78
+         92 |        158        0.01       99.79
+         93 |         58        0.00       99.79
+         94 |        113        0.00       99.80
+         95 |        246        0.01       99.81
+         96 |        386        0.02       99.82
+         97 |         49        0.00       99.82
+         98 |        329        0.01       99.84
+         99 |      3,909        0.16      100.00
+------------+-----------------------------------
+      Total |  2,405,897      100.00
+
+. gen byte hrs_lw_lt20 = (hrswork < 20) & working == 1
+
+. gen byte hrs_lw_2035 = (hrswork >= 20 & hrswork < 35) & working == 1
+
+. gen byte hrs_lw_ge35 = (hrswork >= 35 & hrswork < .) & working == 1
+
+. gen byte hrs_lw_ge20 = (hrswork >= 20 & hrswork < .) & working == 1
+
+. sum hrs_lw*
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+ hrs_lw_lt20 |  2,405,897     .044452    .2060972          0          1
+ hrs_lw_2035 |  2,405,897    .1080416     .310433          0          1
+ hrs_lw_ge35 |  2,405,897    .5571265    .4967259          0          1
+ hrs_lw_ge20 |  2,405,897    .6651681    .4719318          0          1
+
+. 
+. replace uhrswork = . if uhrswork == 0
+(472,726 real changes made, 472,726 to missing)
+
+. replace uhrswork = . if empstat < 10 | empstat > 13
+(196,390 real changes made, 196,390 to missing)
+
+. 
+. replace wkswork1 = . if empstat < 10 | empstat > 13
+(637,405 real changes made, 637,405 to missing)
+
+. 
+. gen wage = inctot / (wkswork1 * uhrswork) 
+(669,116 missing values generated)
+
+. 
+. summ year
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+        year |  2,405,897     1999.99    7.840021       1986       2012
+
+. local miny = r(min)
+
+. local maxy = r(max)
+
+. forvalues y = `miny'(1)`maxy' {
+  2.         qui summ wage [aw=wtsupp] if year == `y', det
+  3.         replace wage = r(p1) if wage < r(p1)  & year == `y'
+  4.         replace wage = r(p99) if wage > r(p99) & wage < . & year == `y'
+  5. }
+(654 real changes made)
+(553 real changes made)
+(612 real changes made)
+(552 real changes made)
+(592 real changes made)
+(563 real changes made)
+(601 real changes made)
+(511 real changes made)
+(640 real changes made)
+(571 real changes made)
+(624 real changes made)
+(569 real changes made)
+(647 real changes made)
+(561 real changes made)
+(583 real changes made)
+(562 real changes made)
+(586 real changes made)
+(571 real changes made)
+(582 real changes made)
+(554 real changes made)
+(522 real changes made)
+(476 real changes made)
+(535 real changes made)
+(476 real changes made)
+(543 real changes made)
+(492 real changes made)
+(528 real changes made)
+(503 real changes made)
+(534 real changes made)
+(497 real changes made)
+(888 real changes made)
+(757 real changes made)
+(860 real changes made)
+(760 real changes made)
+(868 real changes made)
+(766 real changes made)
+(795 real changes made)
+(780 real changes made)
+(782 real changes made)
+(744 real changes made)
+(785 real changes made)
+(744 real changes made)
+(768 real changes made)
+(750 real changes made)
+(790 real changes made)
+(758 real changes made)
+(748 real changes made)
+(733 real changes made)
+(754 real changes made)
+(712 real changes made)
+(694 real changes made)
+(677 real changes made)
+(707 real changes made)
+(697 real changes made)
+
+. 
+. replace wage = log(wage)
+(1,736,781 real changes made)
+
+. 
+. gen age2 = age * age
+
+. gen age3 = age2 * age
+
+. gen age4 = age3 * age
+
+. gen age5 = age4 * age
+
+. 
+. gen female = (sex == 2)
+
+. 
+. gen hsd = (educ < 73)
+
+. gen hsg = (educ == 73)
+
+. gen smc1 = (educ > 73 & educ < 91)
+
+. gen smc2 = (educ >=91 & educ < 111)
+
+. gen col = (educ == 111)
+
+. 
+. gen femaleXkid = female * kid
+
+. 
+. foreach var of varlist female hsg smc1 smc2 col kid {
+  2.  gen `var'Xage = `var' * age
+  3.  gen `var'Xage2 = `var' * age2
+  4.  gen `var'Xage3 = `var' * age3
+  5.  gen `var'Xage4 = `var' * age4
+  6.  gen `var'Xage5 = `var' * age5
+  7. }
+
+. 
+. foreach var of varlist hsg smc1 smc2 col kid {
+  2.  gen `var'XageXfemale = `var' * age * female
+  3.  gen `var'Xage2Xfemale = `var' * age2 * female
+  4.  gen `var'Xage3Xfemale = `var' * age3 * female
+  5.  gen `var'Xage4Xfemale = `var' * age4 * female
+  6.  gen `var'Xage5Xfemale = `var' * age5 * female
+  7. }
+
+. 
+. reg wage age age2-age5 *Xage* female hsg smc1 smc2 col i.year if year >= 2000 & year <= 2004
+
+      Source |       SS           df       MS      Number of obs   =   374,669
+-------------+----------------------------------   F(69, 374599)   =   1168.67
+       Model |  33706.2172        69  488.495902   Prob > F        =    0.0000
+    Residual |  156579.291   374,599  .417991749   R-squared       =    0.1771
+-------------+----------------------------------   Adj R-squared   =    0.1770
+       Total |  190285.508   374,668  .507877663   Root MSE        =    .64652
+
+----------------------------------------------------------------------------------
+            wage | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-----------------+----------------------------------------------------------------
+             age |    .778413   .2520758     3.09   0.002      .284352    1.272474
+            age2 |  -.0362573   .0131215    -2.76   0.006    -.0619751   -.0105396
+            age3 |   .0008318   .0003317     2.51   0.012     .0001816     .001482
+            age4 |  -9.33e-06   4.08e-06    -2.29   0.022    -.0000173   -1.33e-06
+            age5 |   4.11e-08   1.96e-08     2.10   0.035     2.79e-09    7.94e-08
+      femaleXage |  -.2379918   .1836598    -1.30   0.195    -.5979596     .121976
+     femaleXage2 |   .0098162   .0098448     1.00   0.319    -.0094793    .0291117
+     femaleXage3 |  -.0001853   .0002596    -0.71   0.475     -.000694    .0003235
+     femaleXage4 |   1.46e-06   3.35e-06     0.44   0.662    -5.10e-06    8.02e-06
+     femaleXage5 |  -3.06e-09   1.68e-08    -0.18   0.856    -3.60e-08    2.99e-08
+         hsgXage |   .6098899   .2806831     2.17   0.030     .0597593     1.16002
+        hsgXage2 |  -.0289669   .0146223    -1.98   0.048    -.0576263   -.0003076
+        hsgXage3 |   .0006764   .0003702     1.83   0.068    -.0000491    .0014019
+        hsgXage4 |  -7.70e-06   4.56e-06    -1.69   0.091    -.0000166    1.23e-06
+        hsgXage5 |   3.41e-08   2.19e-08     1.56   0.120    -8.86e-09    7.70e-08
+        smc1Xage |   -.392838   .2951498    -1.33   0.183    -.9713229    .1856469
+       smc1Xage2 |   .0225235   .0154205     1.46   0.144    -.0077002    .0527472
+       smc1Xage3 |  -.0005878   .0003914    -1.50   0.133     -.001355    .0001794
+       smc1Xage4 |   7.25e-06   4.84e-06     1.50   0.134    -2.23e-06    .0000167
+       smc1Xage5 |  -3.45e-08   2.33e-08    -1.48   0.139    -8.01e-08    1.12e-08
+        smc2Xage |   .5366401   .3670336     1.46   0.144    -.1827348    1.256015
+       smc2Xage2 |   -.021514   .0190816    -1.13   0.260    -.0589134    .0158855
+       smc2Xage3 |   .0004075    .000483     0.84   0.399    -.0005392    .0013542
+       smc2Xage4 |  -3.52e-06   5.96e-06    -0.59   0.555    -.0000152    8.16e-06
+       smc2Xage5 |   1.03e-08   2.87e-08     0.36   0.721    -4.60e-08    6.65e-08
+         colXage |  -1.053669   .3286102    -3.21   0.001    -1.697735   -.4096028
+        colXage2 |   .0566545   .0168973     3.35   0.001     .0235362    .0897728
+        colXage3 |   -.001423   .0004233    -3.36   0.001    -.0022527   -.0005932
+        colXage4 |    .000017   5.17e-06     3.29   0.001     6.89e-06    .0000272
+        colXage5 |  -7.86e-08   2.47e-08    -3.18   0.001    -1.27e-07   -3.02e-08
+         kidXage |  -.0089042   .0151889    -0.59   0.558    -.0386741    .0208657
+        kidXage2 |  -.0002768   .0015479    -0.18   0.858    -.0033106    .0027571
+        kidXage3 |     .00006   .0000572     1.05   0.295    -.0000522    .0001722
+        kidXage4 |  -1.62e-06   9.13e-07    -1.78   0.076    -3.41e-06    1.69e-07
+        kidXage5 |   1.23e-08   5.32e-09     2.30   0.021     1.83e-09    2.27e-08
+  hsgXageXfemale |  -.0248369   .0359047    -0.69   0.489     -.095209    .0455353
+ hsgXage2Xfemale |   .0019153   .0036311     0.53   0.598    -.0052016    .0090322
+ hsgXage3Xfemale |  -.0000528   .0001329    -0.40   0.691    -.0003132    .0002076
+ hsgXage4Xfemale |   5.71e-07   2.09e-06     0.27   0.785    -3.53e-06    4.67e-06
+ hsgXage5Xfemale |  -1.81e-09   1.20e-08    -0.15   0.880    -2.53e-08    2.17e-08
+ smc1XageXfemale |   .0087954   .0374631     0.23   0.814     -.064631    .0822219
+smc1Xage2Xfemale |  -.0006729   .0038086    -0.18   0.860    -.0081376    .0067917
+smc1Xage3Xfemale |   .0000137     .00014     0.10   0.922    -.0002607    .0002881
+smc1Xage4Xfemale |  -7.09e-08   2.21e-06    -0.03   0.974    -4.41e-06    4.27e-06
+smc1Xage5Xfemale |  -1.42e-10   1.27e-08    -0.01   0.991    -2.51e-08    2.48e-08
+ smc2XageXfemale |   .0008133   .0468062     0.02   0.986    -.0909254    .0925521
+smc2Xage2Xfemale |  -.0010476   .0047142    -0.22   0.824    -.0102873     .008192
+smc2Xage3Xfemale |   .0000687   .0001722     0.40   0.690    -.0002688    .0004062
+smc2Xage4Xfemale |  -1.50e-06   2.71e-06    -0.55   0.580    -6.82e-06    3.81e-06
+smc2Xage5Xfemale |   1.08e-08   1.56e-08     0.69   0.489    -1.98e-08    4.13e-08
+  colXageXfemale |  -.0868383   .0416829    -2.08   0.037    -.1685356    -.005141
+ colXage2Xfemale |     .00899    .004173     2.15   0.031      .000811     .017169
+ colXage3Xfemale |  -.0003353   .0001516    -2.21   0.027    -.0006324   -.0000382
+ colXage4Xfemale |   5.35e-06   2.38e-06     2.25   0.024     6.91e-07      .00001
+ colXage5Xfemale |  -3.09e-08   1.36e-08    -2.28   0.023    -5.75e-08   -4.29e-09
+  kidXageXfemale |   .0340751    .022242     1.53   0.126    -.0095186    .0776689
+ kidXage2Xfemale |  -.0028315   .0022717    -1.25   0.213    -.0072839    .0016209
+ kidXage3Xfemale |   .0000677   .0000841     0.81   0.421    -.0000972    .0002327
+ kidXage4Xfemale |  -5.39e-07   1.34e-06    -0.40   0.689    -3.17e-06    2.10e-06
+ kidXage5Xfemale |   6.30e-10   7.84e-09     0.08   0.936    -1.47e-08    1.60e-08
+          female |   2.091457   1.357783     1.54   0.123    -.5697573    4.752672
+             hsg |  -4.792819   2.091923    -2.29   0.022    -8.892925   -.6927126
+            smc1 |    2.75932   2.193035     1.26   0.208    -1.538964    7.057604
+            smc2 |  -4.633454   2.747458    -1.69   0.092    -10.01839    .7514823
+             col |   7.880587   2.489638     3.17   0.002      3.00097     12.7602
+                 |
+            year |
+           2001  |   .0516582   .0036197    14.27   0.000     .0445636    .0587528
+           2002  |   .0826154   .0036387    22.70   0.000     .0754836    .0897471
+           2003  |   .0955905    .003647    26.21   0.000     .0884425    .1027384
+           2004  |   .1220969   .0036602    33.36   0.000      .114923    .1292707
+                 |
+           _cons |  -4.481996   1.879466    -2.38   0.017    -8.165692   -.7982991
+----------------------------------------------------------------------------------
+
+. predict wage_resid, resid
+(669,116 missing values generated)
+
+. 
+. drop age2-age5 *Xage*
+
+. 
+. gen wage_empl = wage if any_empl == 1
+(1,535,353 missing values generated)
+
+. 
+. ************************************************************
+. **   Generate "type" variables
+. ************************************************************
+. 
+. gen type0 = 1
+
+. gen type1 = (sex == 2)
+
+. gen type2 = ///
+>  0 * (age >= 21 & age < 40) + ///
+>  1 * (age >= 40 & age < 65)
+
+. gen type3 = (educ >= 73)
+
+. 
+. ** Health: 1 is Excellent, 5 is Poor
+. tab health , miss
+
+     Health |
+     status |      Freq.     Percent        Cum.
+------------+-----------------------------------
+  Excellent |    465,008       19.33       19.33
+  Very good |    547,017       22.74       42.06
+       Good |    414,854       17.24       59.31
+       Fair |    132,289        5.50       64.81
+       Poor |     55,124        2.29       67.10
+          . |    791,605       32.90      100.00
+------------+-----------------------------------
+      Total |  2,405,897      100.00
+
+. gen type4 = (health >= 3) 
+
+. gen type5 = (health >= 2) 
+
+. gen type6 = (health >= 2) 
+
+. sum type4 type5 type6
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       type4 |  2,405,897    .5793565    .4936625          0          1
+       type5 |  2,405,897    .8067216    .3948695          0          1
+       type6 |  2,405,897    .8067216    .3948695          0          1
+
+. 
+. gen type9 = has_spouse 
+
+. 
+. if (`1' == 7) {
+.  keep if has_spouse == 1
+. }
+
+. gen type7 = (sex == 2)
+
+. 
+. if (`1' == 8) {
+.  keep if has_spouse == 0
+. }
+
+. gen type8 = (sex == 2)
+
+. 
+. **
+. ** DD type (use same "prepare-data" to keep same sample restrictions)
+. **
+. gen type10 = 1
+
+. gen type11 = 1
+
+. if (`1' == 10 | `1' == 11) {
+.         replace kid = 0
+. }
+
+. 
+. ************************************************************
+. **   Describe health status
+. ************************************************************
+. 
+. ** To answer one referee request, we need to tabulate health status.
+. ** Recall, that 1 indicates "excellent."
+. tab health
+
+     Health |
+     status |      Freq.     Percent        Cum.
+------------+-----------------------------------
+  Excellent |    465,008       28.81       28.81
+  Very good |    547,017       33.89       62.69
+       Good |    414,854       25.70       88.39
+       Fair |    132,289        8.19       96.59
+       Poor |     55,124        3.41      100.00
+------------+-----------------------------------
+      Total |  1,614,292      100.00
+
+. 
+. tab health if any_public == 1
+
+     Health |
+     status |      Freq.     Percent        Cum.
+------------+-----------------------------------
+  Excellent |     31,866       15.10       15.10
+  Very good |     44,934       21.29       36.38
+       Good |     58,089       27.52       63.90
+       Fair |     45,170       21.40       85.30
+       Poor |     31,039       14.70      100.00
+------------+-----------------------------------
+      Total |    211,098      100.00
+
+. 
+. tab health if statefip == 47
+
+     Health |
+     status |      Freq.     Percent        Cum.
+------------+-----------------------------------
+  Excellent |      5,315       25.29       25.29
+  Very good |      6,275       29.85       55.14
+       Good |      5,975       28.43       83.57
+       Fair |      2,216       10.54       94.11
+       Poor |      1,238        5.89      100.00
+------------+-----------------------------------
+      Total |     21,019      100.00
+
+. 
+. tab health if any_public == 1 & statefip == 47
+
+     Health |
+     status |      Freq.     Percent        Cum.
+------------+-----------------------------------
+  Excellent |        517       12.77       12.77
+  Very good |        735       18.16       30.94
+       Good |      1,098       27.13       58.07
+       Fair |        906       22.39       80.45
+       Poor |        791       19.55      100.00
+------------+-----------------------------------
+      Total |      4,047      100.00
+
+. 
+. tab health if year == 2005
+
+     Health |
+     status |      Freq.     Percent        Cum.
+------------+-----------------------------------
+  Excellent |     30,535       28.74       28.74
+  Very good |     36,324       34.18       62.92
+       Good |     27,157       25.56       88.47
+       Fair |      8,689        8.18       96.65
+       Poor |      3,558        3.35      100.00
+------------+-----------------------------------
+      Total |    106,263      100.00
+
+. 
+. tab health if year == 2005 & any_public == 1
+
+     Health |
+     status |      Freq.     Percent        Cum.
+------------+-----------------------------------
+  Excellent |      2,180       15.45       15.45
+  Very good |      3,083       21.86       37.31
+       Good |      3,812       27.02       64.33
+       Fair |      2,985       21.16       85.50
+       Poor |      2,046       14.50      100.00
+------------+-----------------------------------
+      Total |     14,106      100.00
+
+. 
+. tab health if year == 2005 & statefip == 47
+
+     Health |
+     status |      Freq.     Percent        Cum.
+------------+-----------------------------------
+  Excellent |        391       27.08       27.08
+  Very good |        439       30.40       57.48
+       Good |        392       27.15       84.63
+       Fair |        141        9.76       94.39
+       Poor |         81        5.61      100.00
+------------+-----------------------------------
+      Total |      1,444      100.00
+
+. 
+. ************************************************************
+. **   Collapse to (DD) cells
+. ************************************************************
+. 
+. if (`1' < 13) {
+. 
+.         preserve
+. 
+.                 foreach var of varlist any_public working* any_private hrs_lw_* {
+  2.                  gen se_`var' = `var'
+  3.                 }
+. 
+.                 tempfile rest
+.                 save `rest'
+file C:\Users\Genna\AppData\Local\Temp\ST_3e14_000002.tmp saved as .dta format
+. 
+.                 ** Extract the working variable separately
+.                 ** since it requires a separate weight
+.                         collapse ///
+>                           (sum) wtsupp (semean) se_working* se_hrs_lw* ///
+>                           (mean) working* unemp ilf hrs_lw_* hrswork wage* ///
+>                         [aw = wtsupp] , by(year statefip) fast
+. 
+.                         tempfile workingDD
+.                         save `workingDD'
+file C:\Users\Genna\AppData\Local\Temp\ST_3e14_000003.tmp saved as .dta format
+. 
+. 
+.                 use `rest'
+.                 ** Note: the weight hinswt is designed solely for the insurance variables
+.                 collapse (sum) hinswt (mean) any_* ///
+>                       (semean) se_any_* ///
+>                       [aw = hinswt], by(year statefip) fast
+. 
+.                 ** Redo year for health variables (NOT labor supply variables)
+.                 replace year = year - 1
+(1,275 real changes made)
+. 
+.                 sort year statefip
+.                 merge 1:1 year statefip using `workingDD'
+(label statefip_lbl already defined)
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                           102
+        from master                         0  (_merge==1)
+        from using                        102  (_merge==2)
+
+    Matched                             1,275  (_merge==3)
+    -----------------------------------------
+.                 tab _merge
+
+   Matching result from |
+                  merge |      Freq.     Percent        Cum.
+------------------------+-----------------------------------
+         Using only (2) |        102        7.41        7.41
+            Matched (3) |      1,275       92.59      100.00
+------------------------+-----------------------------------
+                  Total |      1,377      100.00
+.                 drop _merge
+. 
+.         save ../dta/cps_DD_FINAL.dta, replace
+file ../dta/cps_DD_FINAL.dta saved
+. 
+.         restore
+. }
+
+. 
+. ************************************************************
+. **   Collapse to (DDD) cells
+. ************************************************************
+. 
+. if (`1' < 13) {
+. 
+.         foreach var of varlist any_public working* any_private hrs_lw_* {
+  2.                 gen se_`var' = `var'
+  3.         }
+. 
+.         ** Extract the working variable separately
+.         ** since it requires a separate weight
+.         preserve
+.                 collapse ///
+>                   (sum) wtsupp (semean) se_working* se_hrs_lw* ///
+>                   (mean) working* unemp ilf hrs_lw_* hrswork wage* ///
+>                 [aw = wtsupp] , by(year statefip kid type`1') fast
+. 
+.                 tempfile working
+.                 save `working'
+file C:\Users\Genna\AppData\Local\Temp\ST_3e14_000005.tmp saved as .dta format
+. 
+.         restore
+. 
+. 
+.         ** Note: the weight hinswt is designed solely for the insurance variables
+.         collapse (sum) hinswt (mean) any_* ///
+>               (semean) se_any_* ///
+>               [aw = hinswt], by(year statefip kid type`1') fast
+. 
+.         ** Redo year for health variables (NOT labor supply variables)
+.         replace year = year - 1
+(2,550 real changes made)
+. 
+.         sort year statefip kid type`1'
+.         merge 1:1 year statefip kid type`1' using `working'
+(label statefip_lbl already defined)
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                           204
+        from master                         0  (_merge==1)
+        from using                        204  (_merge==2)
+
+    Matched                             2,550  (_merge==3)
+    -----------------------------------------
+.         tab _merge
+
+   Matching result from |
+                  merge |      Freq.     Percent        Cum.
+------------------------+-----------------------------------
+         Using only (2) |        204        7.41        7.41
+            Matched (3) |      2,550       92.59      100.00
+------------------------+-----------------------------------
+                  Total |      2,754      100.00
+.         drop _merge
+. 
+.         save ../dta/cps_DDD_FINAL.dta, replace
+file ../dta/cps_DDD_FINAL.dta saved
+. 
+. }
+
+. 
+. 
+. if (`1' == 13) {
+.   save ../dta/cps_MICRO_FINAL.dta, replace
+. }
+
+. 
+end of do-file
+
+. *exit
+. use ../dta/cps_DDD_FINAL.dta, clear
+
+. 
+. ************************************************************
+. **   Prpare for simple difference-in-difference regressions
+. ************************************************************
+. 
+. gen south = ///
+>  (statefip == 54 | ///
+>   statefip == 21 | statefip == 47 | ///
+>   statefip == 37 | statefip == 51 | statefip == 45 | statefip == 13 | ///
+>   statefip ==  5 | statefip == 22 | statefip == 48 | statefip == 40 | ///
+>   statefip ==  1 | statefip == 28 | statefip == 12 )
+
+. 
+. tab year, missing
+
+Survey year |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       1986 |        102        3.70        3.70
+       1987 |        102        3.70        7.41
+       1988 |        102        3.70       11.11
+       1989 |        102        3.70       14.81
+       1990 |        102        3.70       18.52
+       1991 |        102        3.70       22.22
+       1992 |        102        3.70       25.93
+       1993 |        102        3.70       29.63
+       1994 |        102        3.70       33.33
+       1995 |        102        3.70       37.04
+       1996 |        102        3.70       40.74
+       1997 |        102        3.70       44.44
+       1998 |        102        3.70       48.15
+       1999 |        102        3.70       51.85
+       2000 |        102        3.70       55.56
+       2001 |        102        3.70       59.26
+       2002 |        102        3.70       62.96
+       2003 |        102        3.70       66.67
+       2004 |        102        3.70       70.37
+       2005 |        102        3.70       74.07
+       2006 |        102        3.70       77.78
+       2007 |        102        3.70       81.48
+       2008 |        102        3.70       85.19
+       2009 |        102        3.70       88.89
+       2010 |        102        3.70       92.59
+       2011 |        102        3.70       96.30
+       2012 |        102        3.70      100.00
+------------+-----------------------------------
+      Total |      2,754      100.00
+
+. tab statefip
+
+                      State (FIPS code) |      Freq.     Percent        Cum.
+----------------------------------------+-----------------------------------
+                                Alabama |         54        1.96        1.96
+                                 Alaska |         54        1.96        3.92
+                                Arizona |         54        1.96        5.88
+                               Arkansas |         54        1.96        7.84
+                             California |         54        1.96        9.80
+                               Colorado |         54        1.96       11.76
+                            Connecticut |         54        1.96       13.73
+                               Delaware |         54        1.96       15.69
+                   District of Columbia |         54        1.96       17.65
+                                Florida |         54        1.96       19.61
+                                Georgia |         54        1.96       21.57
+                                 Hawaii |         54        1.96       23.53
+                                  Idaho |         54        1.96       25.49
+                               Illinois |         54        1.96       27.45
+                                Indiana |         54        1.96       29.41
+                                   Iowa |         54        1.96       31.37
+                                 Kansas |         54        1.96       33.33
+                               Kentucky |         54        1.96       35.29
+                              Louisiana |         54        1.96       37.25
+                                  Maine |         54        1.96       39.22
+                               Maryland |         54        1.96       41.18
+                          Massachusetts |         54        1.96       43.14
+                               Michigan |         54        1.96       45.10
+                              Minnesota |         54        1.96       47.06
+                            Mississippi |         54        1.96       49.02
+                               Missouri |         54        1.96       50.98
+                                Montana |         54        1.96       52.94
+                               Nebraska |         54        1.96       54.90
+                                 Nevada |         54        1.96       56.86
+                          New Hampshire |         54        1.96       58.82
+                             New Jersey |         54        1.96       60.78
+                             New Mexico |         54        1.96       62.75
+                               New York |         54        1.96       64.71
+                         North Carolina |         54        1.96       66.67
+                           North Dakota |         54        1.96       68.63
+                                   Ohio |         54        1.96       70.59
+                               Oklahoma |         54        1.96       72.55
+                                 Oregon |         54        1.96       74.51
+                           Pennsylvania |         54        1.96       76.47
+                           Rhode Island |         54        1.96       78.43
+                         South Carolina |         54        1.96       80.39
+                           South Dakota |         54        1.96       82.35
+                              Tennessee |         54        1.96       84.31
+                                  Texas |         54        1.96       86.27
+                                   Utah |         54        1.96       88.24
+                                Vermont |         54        1.96       90.20
+                               Virginia |         54        1.96       92.16
+                             Washington |         54        1.96       94.12
+                          West Virginia |         54        1.96       96.08
+                              Wisconsin |         54        1.96       98.04
+                                Wyoming |         54        1.96      100.00
+----------------------------------------+-----------------------------------
+                                  Total |      2,754      100.00
+
+. 
+. gen byte tn = (statefip == 47)
+
+. gen byte post = year >= 2006
+
+. gen byte tn_X_post = tn * post
+
+. 
+. ************************************************************
+. **   Create histograms of state-year changes, FP
+. **   All US
+. ************************************************************
+. 
+. tempfile workingdata
+
+. save `workingdata'
+file C:\Users\Genna\AppData\Local\Temp\ST_3e14_000001.tmp saved as .dta format
+
+. 
+. use `workingdata' , clear
+
+. 
+. gen nokid = 1 - kid
+
+. 
+. codebook statefip
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+statefip                                                                                                                                                                               State (FIPS code)
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+                  Type: Numeric (byte)
+                 Label: statefip_lbl
+
+                 Range: [1,56]                        Units: 1
+         Unique values: 51                        Missing .: 0/2,754
+
+              Examples: 13    Georgia
+                        24    Maryland
+                        34    New Jersey
+                        45    South Carolina
+
+. 
+. keep if year >= 2000 & year <= 2011
+(1,530 observations deleted)
+
+. 
+. replace year = 2 * floor(year / 2)
+(612 real changes made)
+
+. collapse (mean) any_public any_private working, by(statefip year nokid)
+
+. 
+. keep if nokid == 1
+(306 observations deleted)
+
+. 
+. sort statefip nokid year
+
+. by statefip nokid: gen diff1 = any_public - any_public[_n-1]
+(51 missing values generated)
+
+. by statefip nokid: gen diff2 = working - working[_n-1]
+(51 missing values generated)
+
+. by statefip nokid: gen diff3 = any_private - any_private[_n-1]
+(51 missing values generated)
+
+. 
+. list statefip nokid year diff* if statefip == 47 & nokid == 1
+
+     +--------------------------------------------------------------+
+     |  statefip   nokid   year       diff1       diff2       diff3 |
+     |--------------------------------------------------------------|
+253. | Tennessee       1   2000           .           .           . |
+254. | Tennessee       1   2002    .0101425   -.0367646   -.0150885 |
+255. | Tennessee       1   2004    .0112983   -.0183123   -.0475747 |
+256. | Tennessee       1   2006   -.0627887    .0586477    .0524651 |
+257. | Tennessee       1   2008    .0160983   -.0396429   -.0590333 |
+     |--------------------------------------------------------------|
+258. | Tennessee       1   2010    .0237682    .0025642    .0187974 |
+     +--------------------------------------------------------------+
+
+. summ diff*, det
+
+                            diff1
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%    -.0356433      -.0627887
+ 5%    -.0215197      -.0446413
+10%    -.0146735      -.0356433       Obs                 255
+25%    -.0011062      -.0353837       Sum of wgt.         255
+
+50%      .009626                      Mean           .0092319
+                        Largest       Std. dev.      .0189695
+75%     .0194319       .0520105
+90%     .0349946       .0528212       Variance       .0003598
+95%     .0449263       .0618707       Skewness      -.0209261
+99%     .0528212       .0676589       Kurtosis       3.934209
+
+                            diff2
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%    -.0640581      -.0675693
+ 5%    -.0514194      -.0673679
+10%    -.0427042      -.0640581       Obs                 255
+25%    -.0283382      -.0600799       Sum of wgt.         255
+
+50%    -.0112613                      Mean          -.0114118
+                        Largest       Std. dev.      .0235226
+75%     .0052779       .0382844
+90%     .0173916       .0419829       Variance       .0005533
+95%     .0251009       .0488798       Skewness        .037283
+99%     .0419829       .0586477       Kurtosis       2.747302
+
+                            diff3
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%    -.0665995      -.0800763
+ 5%    -.0526133      -.0706129
+10%    -.0472813      -.0665995       Obs                 255
+25%    -.0314472      -.0665584       Sum of wgt.         255
+
+50%    -.0160443                      Mean          -.0161136
+                        Largest       Std. dev.      .0242536
+75%    -.0010348       .0524651
+90%     .0133501       .0534735       Variance       .0005882
+95%       .02487       .0575051       Skewness       .2898556
+99%     .0534735       .0629759       Kurtosis       3.322744
+
+. 
+. list statefip nokid year diff* if diff2 > 0.5 & diff1 < .
+
+. 
+. gen count = 1
+
+. 
+. gen treat =  (statefip == 47 & nokid == 1 & year == 2006)
+
+. 
+. preserve
+
+.         replace diff1 = diff2
+(255 real changes made)
+
+. 
+.         replace count = 40 if (statefip == 47 & nokid == 1 & year == 2006)
+(1 real change made)
+
+.         replace diff1 = 0.005 * floor(diff1 / 0.005) if (statefip != 47 | nokid != 1 | year != 2006)
+(254 real changes made)
+
+.         summ diff1, det
+
+                            diff1
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%        -.065           -.07
+ 5%        -.055           -.07
+10%        -.045          -.065       Obs                 255
+25%         -.03          -.065       Sum of wgt.         255
+
+50%        -.015                      Mean           -.013868
+                        Largest       Std. dev.       .023617
+75%         .005           .035
+90%         .015            .04       Variance       .0005578
+95%         .025           .045       Skewness       .0493726
+99%          .04       .0586477       Kurtosis        2.75941
+
+.         collapse (sum) count, by(treat diff1)
+
+.         drop if missing(diff1)
+(1 observation deleted)
+
+.         gen height = count
+
+.         replace diff1 = diff1 + 0.0025 if treat == 0
+(24 real changes made)
+
+.         twoway (bar height diff1 if (treat == 0), barwidth(0.005) fcolor(gs10) ) ///
+>                (bar height diff1 if (treat == 1), barwidth(0.0005) color(gs4) ), ///
+>                 xlabel(-0.08(0.02)0.08) ///
+>                 ylabel(0(5)40) yscale(r(-0.001 40.001)) ///
+>                 ylabel(, nogrid angle(horizontal)  ) ///
+>                 scheme(s2mono) ///
+>                 graphregion(fcolor(white)) ///
+>                 aspectratio(`inv_golden_ratio') ///
+>                 legend(off) ///
+>                 yscale( nofextend ) xscale(nofextend) ///
+>                 xtitle(" ") ytitle(" ") 
+
+.         graph save ../gph/working_histo-allus.gph , replace
+file ../gph/working_histo-allus.gph saved
+
+.  restore
+
+. 
+. preserve
+
+.         replace count = 40 if (statefip == 47 & nokid == 1 & year == 2006)
+(1 real change made)
+
+.         replace diff3 = 0.005 * floor(diff3 / 0.005) if (statefip != 47 | nokid != 1 | year != 2006)
+(254 real changes made)
+
+.         summ diff3, det
+
+                            diff3
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%         -.07          -.085
+ 5%        -.055          -.075
+10%         -.05           -.07       Obs                 255
+25%        -.035           -.07       Sum of wgt.         255
+
+50%         -.02                      Mean          -.0186962
+                        Largest       Std. dev.      .0242824
+75%        -.005            .05
+90%          .01       .0524651       Variance       .0005896
+95%          .02           .055       Skewness        .278797
+99%     .0524651            .06       Kurtosis        3.37964
+
+.         collapse (sum) count, by(treat diff3)
+
+.         drop if missing(diff3)
+(1 observation deleted)
+
+.         gen height = count
+
+.         replace diff3 = diff3 + 0.0025 if treat == 0
+(27 real changes made)
+
+.         twoway (bar height diff3 if (treat == 0), barwidth(0.005) fcolor(gs10) ) ///
+>                (bar height diff3 if (treat == 1), barwidth(0.0005) color(gs4) ), ///
+>                 xlabel(-0.08(0.02)0.08) ///
+>                 ylabel(0(5)40) yscale(r(-0.001 40.001)) ///
+>                 ylabel(, nogrid angle(horizontal)  ) ///
+>                 scheme(s2mono) ///
+>                 graphregion(fcolor(white)) ///
+>                 aspectratio(`inv_golden_ratio') ///
+>                 legend(off) ///
+>                 yscale( nofextend ) xscale(nofextend) ///
+>                 xtitle(" ") ytitle(" ") 
+
+.         graph save ../gph/any_private_histo-allus.gph , replace
+file ../gph/any_private_histo-allus.gph saved
+
+. restore
+
+. 
+. preserve
+
+.         replace count = 40 if (statefip == 47 & nokid == 1 & year == 2006)
+(1 real change made)
+
+.         replace diff1 = 0.005 * floor(diff1 / 0.005) if (statefip != 47 | nokid != 1 | year != 2006)
+(254 real changes made)
+
+.         summ diff1, det
+
+                            diff1
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%         -.04      -.0627887
+ 5%        -.025          -.045
+10%        -.015           -.04       Obs                 255
+25%        -.005           -.04       Sum of wgt.         255
+
+50%         .005                      Mean           .0067146
+                        Largest       Std. dev.      .0190803
+75%         .015            .05
+90%          .03            .05       Variance       .0003641
+95%          .04            .06       Skewness       .0266576
+99%          .05           .065       Kurtosis       3.797189
+
+.         collapse (sum) count, by(treat diff1)
+
+.         drop if missing(diff1)
+(1 observation deleted)
+
+.         gen height = count
+
+.         replace diff1 = diff1 + 0.0025 if treat == 0
+(22 real changes made)
+
+.         twoway (bar height diff1 if (treat == 0), barwidth(0.005) fcolor(gs10) ) ///
+>                (bar height diff1 if (treat == 1), barwidth(0.0005) color(gs6) ), ///
+>                 xlabel(-0.08(0.02)0.08) ///
+>                 ylabel(0(5)40) yscale(r(-0.001 40.001)) ///
+>                 ylabel(, nogrid angle(horizontal)  ) ///
+>                 scheme(s2mono) ///
+>                 graphregion(fcolor(white)) ///
+>                 aspectratio(`inv_golden_ratio') ///
+>                 legend(off) ///
+>                 yscale( nofextend ) xscale(nofextend) ///
+>                 xtitle(" ") ytitle(" ") 
+
+.         graph save ../gph/any_public_histo-allus.gph , replace
+file ../gph/any_public_histo-allus.gph saved
+
+. restore
+
+. 
+. use `workingdata' , clear
+
+. 
+. ************************************************************
+. **   Create histograms of state-year changes, FP
+. **   South only
+. ************************************************************
+. 
+. tempfile working
+
+. save `working'
+file C:\Users\Genna\AppData\Local\Temp\ST_3e14_000005.tmp saved as .dta format
+
+. 
+. 
+. use `working' , clear
+
+. 
+. gen nokid = 1 - kid
+
+. 
+. keep if south == 1
+(1,998 observations deleted)
+
+. 
+. keep if year >= 2000 & year <= 2011
+(420 observations deleted)
+
+. 
+. replace year = 2 * floor(year / 2)
+(168 real changes made)
+
+. collapse (mean) any_public any_private working, by(statefip year nokid)
+
+. 
+. keep if nokid == 1
+(84 observations deleted)
+
+. 
+. sort statefip nokid year
+
+. by statefip nokid: gen diff1 = any_public - any_public[_n-1]
+(14 missing values generated)
+
+. by statefip nokid: gen diff2 = working - working[_n-1]
+(14 missing values generated)
+
+. by statefip nokid: gen diff3 = any_private - any_private[_n-1]
+(14 missing values generated)
+
+. 
+. list statefip nokid year diff* if statefip == 47 & nokid == 1
+
+     +--------------------------------------------------------------+
+     |  statefip   nokid   year       diff1       diff2       diff3 |
+     |--------------------------------------------------------------|
+ 61. | Tennessee       1   2000           .           .           . |
+ 62. | Tennessee       1   2002    .0101425   -.0367646   -.0150885 |
+ 63. | Tennessee       1   2004    .0112983   -.0183123   -.0475747 |
+ 64. | Tennessee       1   2006   -.0627887    .0586477    .0524651 |
+ 65. | Tennessee       1   2008    .0160983   -.0396429   -.0590333 |
+     |--------------------------------------------------------------|
+ 66. | Tennessee       1   2010    .0237682    .0025642    .0187974 |
+     +--------------------------------------------------------------+
+
+. summ diff*, det
+
+                            diff1
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%    -.0627887      -.0627887
+ 5%    -.0324523      -.0446413
+10%    -.0192951      -.0331998       Obs                  70
+25%    -.0103015      -.0324523       Sum of wgt.          70
+
+50%     .0096315                      Mean           .0086621
+                        Largest       Std. dev.      .0245559
+75%     .0218363       .0520105
+90%     .0427246       .0528212       Variance        .000603
+95%     .0520105       .0618707       Skewness      -.1088165
+99%     .0676589       .0676589       Kurtosis       3.358451
+
+                            diff2
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%    -.0675693      -.0675693
+ 5%    -.0568498      -.0640581
+10%    -.0456239      -.0572792       Obs                  70
+25%    -.0336258      -.0568498       Sum of wgt.          70
+
+50%    -.0108324                      Mean           -.011927
+                        Largest       Std. dev.      .0267933
+75%     .0096093       .0311704
+90%     .0202676       .0340721       Variance       .0007179
+95%     .0311704       .0419829       Skewness       .0705314
+99%     .0586477       .0586477       Kurtosis       2.598836
+
+                            diff3
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%    -.0800763      -.0800763
+ 5%    -.0602297      -.0665995
+10%    -.0490448        -.06567       Obs                  70
+25%    -.0370564      -.0602297       Sum of wgt.          70
+
+50%    -.0159785                      Mean          -.0175407
+                        Largest       Std. dev.       .026361
+75%    -.0015199        .030836
+90%      .013491        .034426       Variance       .0006949
+95%      .030836       .0364028       Skewness       .1238676
+99%     .0524651       .0524651       Kurtosis       2.926473
+
+. 
+. list statefip nokid year diff* if diff2 > 0.5 & diff1 < .
+
+. 
+. gen count = 1
+
+. 
+. gen treat =  (statefip == 47 & nokid == 1 & year == 2006)
+
+. 
+. preserve
+
+.         replace diff1 = diff2
+(70 real changes made)
+
+. 
+.         replace count = 15 if (statefip == 47 & nokid == 1 & year == 2006)
+(1 real change made)
+
+.         replace diff1 = 0.005 * floor(diff1 / 0.005) if (statefip != 47 | nokid != 1 | year != 2006)
+(69 real changes made)
+
+.         summ diff1, det
+
+                            diff1
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%         -.07           -.07
+ 5%         -.06          -.065
+10%         -.05           -.06       Obs                  70
+25%        -.035           -.06       Sum of wgt.          70
+
+50%        -.015                      Mean          -.0145193
+                        Largest       Std. dev.      .0270421
+75%         .005            .03
+90%        .0175            .03       Variance       .0007313
+95%          .03            .04       Skewness       .0986886
+99%     .0586477       .0586477       Kurtosis       2.647935
+
+.         collapse (sum) count, by(treat diff1)
+
+.         drop if missing(diff1)
+(1 observation deleted)
+
+.         gen height = count
+
+.         replace diff1 = diff1 + 0.0025 if treat == 0
+(21 real changes made)
+
+.         twoway (bar height diff1 if (treat == 0), barwidth(0.005) fcolor(gs10) ) ///
+>                (bar height diff1 if (treat == 1), barwidth(0.0005) color(gs4) ), ///
+>                 xlabel(-0.08(0.02)0.08) ///
+>                 ylabel(0(5)15) yscale(r(-0.001 15.001)) ///
+>                 ylabel(, nogrid angle(horizontal)  ) ///
+>                 scheme(s2mono) ///
+>                 graphregion(fcolor(white)) ///
+>                 aspectratio(`inv_golden_ratio') ///
+>                 legend(off) ///
+>                 yscale( nofextend ) xscale(nofextend) ///
+>                 xtitle(" ") ytitle(" ") 
+
+.         graph save ../gph/working_histo.gph , replace
+file ../gph/working_histo.gph saved
+
+.  restore
+
+. 
+. preserve
+
+.         replace count = 15 if (statefip == 47 & nokid == 1 & year == 2006)
+(1 real change made)
+
+.         replace diff3 = 0.005 * floor(diff3 / 0.005) if (statefip != 47 | nokid != 1 | year != 2006)
+(69 real changes made)
+
+.         summ diff3, det
+
+                            diff3
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%        -.085          -.085
+ 5%        -.065           -.07
+10%         -.05           -.07       Obs                  70
+25%         -.04          -.065       Sum of wgt.          70
+
+50%         -.02                      Mean          -.0201791
+                        Largest       Std. dev.      .0266142
+75%        -.005            .03
+90%        .0125            .03       Variance       .0007083
+95%          .03           .035       Skewness       .1350521
+99%     .0524651       .0524651       Kurtosis       3.063515
+
+.         collapse (sum) count, by(treat diff3)
+
+.         drop if missing(diff3)
+(1 observation deleted)
+
+.         gen height = count
+
+.         replace diff3 = diff3 + 0.0025 if treat == 0
+(22 real changes made)
+
+.         twoway (bar height diff3 if (treat == 0), barwidth(0.005) fcolor(gs10) ) ///
+>                (bar height diff3 if (treat == 1), barwidth(0.0005) color(gs4) ), ///
+>                 xlabel(-0.08(0.02)0.08) ///
+>                 ylabel(0(5)15) yscale(r(-0.001 15.001)) ///
+>                 ylabel(, nogrid angle(horizontal)  ) ///
+>                 scheme(s2mono) ///
+>                 graphregion(fcolor(white)) ///
+>                 aspectratio(`inv_golden_ratio') ///
+>                 legend(off) ///
+>                 yscale( nofextend ) xscale(nofextend) ///
+>                 xtitle(" ") ytitle(" ") 
+
+.         graph save ../gph/any_private_histo.gph , replace
+file ../gph/any_private_histo.gph saved
+
+. restore
+
+. 
+. preserve
+
+.         replace count = 15 if (statefip == 47 & nokid == 1 & year == 2006)
+(1 real change made)
+
+.         replace diff1 = 0.005 * floor(diff1 / 0.005) if (statefip != 47 | nokid != 1 | year != 2006)
+(69 real changes made)
+
+.         summ diff1, det
+
+                            diff1
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%    -.0627887      -.0627887
+ 5%        -.035          -.045
+10%         -.02          -.035       Obs                  70
+25%        -.015          -.035       Sum of wgt.          70
+
+50%         .005                      Mean           .0063887
+                        Largest       Std. dev.       .024357
+75%          .02            .05
+90%          .04            .05       Variance       .0005933
+95%          .05            .06       Skewness      -.0412837
+99%         .065           .065       Kurtosis       3.285048
+
+.         collapse (sum) count, by(treat diff1)
+
+.         drop if missing(diff1)
+(1 observation deleted)
+
+.         gen height = count
+
+.         replace diff1 = diff1 + 0.0025 if treat == 0
+(21 real changes made)
+
+.         twoway (bar height diff1 if (treat == 0), barwidth(0.005) fcolor(gs10) ) ///
+>                (bar height diff1 if (treat == 1), barwidth(0.0005) color(gs6) ), ///
+>                 xlabel(-0.08(0.02)0.08) ///
+>                 ylabel(0(5)15) yscale(r(-0.001 15.001)) ///
+>                 ylabel(, nogrid angle(horizontal)  ) ///
+>                 scheme(s2mono) ///
+>                 graphregion(fcolor(white)) ///
+>                 aspectratio(`inv_golden_ratio') ///
+>                 legend(off) ///
+>                 yscale( nofextend ) xscale(nofextend) ///
+>                 xtitle(" ") ytitle(" ") 
+
+.         graph save ../gph/any_public_histo.gph , replace
+file ../gph/any_public_histo.gph saved
+
+. restore
+
+. 
+. use `working' , clear
+
+. 
+. ************************************************************
+. **   Run triple-difference figures for entire US
+. ************************************************************
+. 
+. preserve
+
+.         keep if year >= 2000 & year <= 2007
+(1,938 observations deleted)
+
+. 
+.         tab state
+
+                      State (FIPS code) |      Freq.     Percent        Cum.
+----------------------------------------+-----------------------------------
+                                Alabama |         16        1.96        1.96
+                                 Alaska |         16        1.96        3.92
+                                Arizona |         16        1.96        5.88
+                               Arkansas |         16        1.96        7.84
+                             California |         16        1.96        9.80
+                               Colorado |         16        1.96       11.76
+                            Connecticut |         16        1.96       13.73
+                               Delaware |         16        1.96       15.69
+                   District of Columbia |         16        1.96       17.65
+                                Florida |         16        1.96       19.61
+                                Georgia |         16        1.96       21.57
+                                 Hawaii |         16        1.96       23.53
+                                  Idaho |         16        1.96       25.49
+                               Illinois |         16        1.96       27.45
+                                Indiana |         16        1.96       29.41
+                                   Iowa |         16        1.96       31.37
+                                 Kansas |         16        1.96       33.33
+                               Kentucky |         16        1.96       35.29
+                              Louisiana |         16        1.96       37.25
+                                  Maine |         16        1.96       39.22
+                               Maryland |         16        1.96       41.18
+                          Massachusetts |         16        1.96       43.14
+                               Michigan |         16        1.96       45.10
+                              Minnesota |         16        1.96       47.06
+                            Mississippi |         16        1.96       49.02
+                               Missouri |         16        1.96       50.98
+                                Montana |         16        1.96       52.94
+                               Nebraska |         16        1.96       54.90
+                                 Nevada |         16        1.96       56.86
+                          New Hampshire |         16        1.96       58.82
+                             New Jersey |         16        1.96       60.78
+                             New Mexico |         16        1.96       62.75
+                               New York |         16        1.96       64.71
+                         North Carolina |         16        1.96       66.67
+                           North Dakota |         16        1.96       68.63
+                                   Ohio |         16        1.96       70.59
+                               Oklahoma |         16        1.96       72.55
+                                 Oregon |         16        1.96       74.51
+                           Pennsylvania |         16        1.96       76.47
+                           Rhode Island |         16        1.96       78.43
+                         South Carolina |         16        1.96       80.39
+                           South Dakota |         16        1.96       82.35
+                              Tennessee |         16        1.96       84.31
+                                  Texas |         16        1.96       86.27
+                                   Utah |         16        1.96       88.24
+                                Vermont |         16        1.96       90.20
+                               Virginia |         16        1.96       92.16
+                             Washington |         16        1.96       94.12
+                          West Virginia |         16        1.96       96.08
+                              Wisconsin |         16        1.96       98.04
+                                Wyoming |         16        1.96      100.00
+----------------------------------------+-----------------------------------
+                                  Total |        816      100.00
+
+.         codebook state
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+statefip                                                                                                                                                                               State (FIPS code)
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+                  Type: Numeric (byte)
+                 Label: statefip_lbl
+
+                 Range: [1,56]                        Units: 1
+         Unique values: 51                        Missing .: 0/816
+
+              Examples: 13    Georgia
+                        24    Maryland
+                        34    New Jersey
+                        45    South Carolina
+
+. 
+.         ** Given small cells, we present the raw data in two-year means
+.         tab year
+
+Survey year |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       2000 |        102       12.50       12.50
+       2001 |        102       12.50       25.00
+       2002 |        102       12.50       37.50
+       2003 |        102       12.50       50.00
+       2004 |        102       12.50       62.50
+       2005 |        102       12.50       75.00
+       2006 |        102       12.50       87.50
+       2007 |        102       12.50      100.00
+------------+-----------------------------------
+      Total |        816      100.00
+
+.         replace year = 2 * floor(year / 2)
+(408 real changes made)
+
+.         tab year
+
+Survey year |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       2000 |        204       25.00       25.00
+       2002 |        204       25.00       50.00
+       2004 |        204       25.00       75.00
+       2006 |        204       25.00      100.00
+------------+-----------------------------------
+      Total |        816      100.00
+
+. 
+.         collapse (mean) any_p* any_coverage any_empl any_m* working, by(year tn kid)
+
+.         sort tn kid year
+
+.         list
+
+     +-------------------------------------------------------------------------------------------------------------------+
+     | year   kid   tn   any_pu~c   any_pr~e   any_~_wk   any_~owk   any_co~e   any_empl   any_mc~d   any_mc~e   working |
+     |-------------------------------------------------------------------------------------------------------------------|
+  1. | 2000     0    0    .113141    .684396    .606554    .164405     .84608   .6901194   .0538633   .0485267   .726476 |
+  2. | 2002     0    0    .120368    .655474     .57973    .158918    .824572   .6637778   .0576785   .0505363   .707904 |
+  3. | 2004     0    0      .1315    .643555    .570967    .154926    .816184   .6456122   .0640218   .0525419   .706092 |
+  4. | 2006     0    0    .138777    .643314    .573653    .150256    .819406   .6449713    .067173   .0571414   .708191 |
+  5. | 2000     1    0    .105826    .705902    .625726    .138092    .840545   .7178615    .075131   .0162102    .76531 |
+     |-------------------------------------------------------------------------------------------------------------------|
+  6. | 2002     1    0    .121039    .666287    .588328    .134897    .821776   .6839845   .0895305   .0174973   .744383 |
+  7. | 2004     1    0     .13815    .660272    .586959    .132556    .822126    .671554   .1021827    .017795   .740714 |
+  8. | 2006     1    0    .134873    .652185    .580518    .127797    .811884   .6622279   .0999291   .0191249   .742691 |
+  9. | 2000     0    1    .185358    .633572    .545597     .16591    .857158   .6325728   .1344079   .0755974   .694204 |
+ 10. | 2002     0    1    .195501    .618484    .536185    .164508    .863692   .6277735   .1309183   .0811953    .65744 |
+     |-------------------------------------------------------------------------------------------------------------------|
+ 11. | 2004     0    1    .206799    .570909    .510558    .144885    .818857   .5689119   .1140734   .0768757   .639127 |
+ 12. | 2006     0    1     .14401    .623374    .541774    .152228    .790728   .6189651   .0646041    .061703   .697775 |
+ 13. | 2000     1    1    .190723    .684769    .583791    .144611    .874392   .6948216   .1534094   .0193537   .752261 |
+ 14. | 2002     1    1    .203413     .61398    .529313    .147907    .858821   .6337699   .1688996    .028662   .700028 |
+ 15. | 2004     1    1    .191201    .603923    .530638    .139185    .817443    .615327    .135235   .0225852   .691286 |
+     |-------------------------------------------------------------------------------------------------------------------|
+ 16. | 2006     1    1    .205096    .593253    .515502    .138686    .818001    .599501   .1387993   .0318335   .703425 |
+     +-------------------------------------------------------------------------------------------------------------------+
+
+. 
+.         local inv_golden_ratio = 2 / ( sqrt(5) + 1 )
+
+.         twoway ///
+>                 (connected any_public year if tn == 0 & kid == 1, lpattern(dash) lcolor(gray) mcolor(red) msymbol(D)) ///
+>                 (connected any_public year if tn == 0 & kid == 0, lpattern(dash) lcolor(gray) mcolor(red) msymbol(T)) ///
+>                 (connected any_public year if tn == 1 & kid == 1, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(s) ) ///
+>                 (connected any_public year if tn == 1 & kid == 0, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(o) ) ///
+>                 , ///
+>                 ylabel(, nogrid angle(horizontal)  ) ///
+>                 scheme(s2mono) ///
+>                 graphregion(fcolor(white)) ///
+>                 xline(2005) ///
+>                 aspectratio(`inv_golden_ratio') ///
+>                 legend(off) ///
+>                 yscale( nofextend ) xscale(nofextend) ///
+>                 xlabel(2000 "2000-2001" 2002 "2002-2003" 2004 "2004-2005" 2006 "2006-07") ///
+>                 xtitle(" ") ytitle(" ") 
+
+.          graph save ../gph/any_public_kid-allus.gph, replace
+file ../gph/any_public_kid-allus.gph saved
+
+. 
+.         local inv_golden_ratio = 2 / ( sqrt(5) + 1 )
+
+.         twoway ///
+>                 (connected any_private year if tn == 0 & kid == 1, lpattern(dash) lcolor(gray) mcolor(red) msymbol(D)) /// 
+>                 (connected any_private year if tn == 0 & kid == 0, lpattern(dash) lcolor(gray) mcolor(red) msymbol(T)) ///
+>                 (connected any_private year if tn == 1 & kid == 1, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(s) ) ///
+>                 (connected any_private year if tn == 1 & kid == 0, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(o) ) ///
+>                 , ///
+>                 ylabel(, nogrid angle(horizontal)  ) ///
+>                 scheme(s2mono) ///
+>                 aspectratio(`inv_golden_ratio') ///
+>                 graphregion(fcolor(white)) ///
+>                 xline(2005) ///
+>                 legend(off) ///
+>                 yscale( nofextend ) xscale(nofextend) ///
+>                 xlabel(2000 "2000-2001" 2002 "2002-2003" 2004 "2004-2005" 2006 "2006-07") ///
+>                 xtitle(" ") ytitle(" ") 
+
+.         graph save ../gph/any_private_kid-allus.gph, replace
+file ../gph/any_private_kid-allus.gph saved
+
+. 
+.         local inv_golden_ratio = 2 / ( sqrt(5) + 1 )
+
+.         twoway ///
+>                 (connected working year if tn == 0 & kid == 1, lpattern(dash) lcolor(gray) mcolor(red) msymbol(D)) ///
+>                 (connected working year if tn == 0 & kid == 0, lpattern(dash) lcolor(gray) mcolor(red) msymbol(T)) ///
+>                 (connected working year if tn == 1 & kid == 1, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(s) ) ///
+>                 (connected working year if tn == 1 & kid == 0, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(o) ) ///
+>                 , ///
+>                 ylabel(, nogrid angle(horizontal)  ) ///
+>                 scheme(s2mono) ///
+>                 graphregion(fcolor(white)) ///
+>                 xline(2005) ///
+>                 legend(off) ///
+>                 yscale( nofextend ) xscale(nofextend) ///
+>                 aspectratio(`inv_golden_ratio') ///
+>                 xlabel(2000 "2000-2001" 2002 "2002-2003" 2004 "2004-2005" 2006 "2006-07") ///
+>                 xtitle(" ") ytitle(" ") 
+
+.         graph save ../gph/working_kid-allus.gph, replace
+file ../gph/working_kid-allus.gph saved
+
+. 
+. restore
+
+. 
+. ************************************************************
+. **   Run overall triple-difference figures, FP
+. ************************************************************
+. 
+. preserve
+
+.         keep if south == 1
+(1,998 observations deleted)
+
+.         keep if year >= 2000 & year <= 2007
+(532 observations deleted)
+
+. 
+.         ** Given small cells, we present the raw data in two-year means
+.         tab year
+
+Survey year |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       2000 |         28       12.50       12.50
+       2001 |         28       12.50       25.00
+       2002 |         28       12.50       37.50
+       2003 |         28       12.50       50.00
+       2004 |         28       12.50       62.50
+       2005 |         28       12.50       75.00
+       2006 |         28       12.50       87.50
+       2007 |         28       12.50      100.00
+------------+-----------------------------------
+      Total |        224      100.00
+
+.         replace year = 2 * floor(year / 2)
+(112 real changes made)
+
+.         tab year
+
+Survey year |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       2000 |         56       25.00       25.00
+       2002 |         56       25.00       50.00
+       2004 |         56       25.00       75.00
+       2006 |         56       25.00      100.00
+------------+-----------------------------------
+      Total |        224      100.00
+
+. 
+.         collapse (mean) any_p* any_coverage any_empl any_m* working, by(year tn kid)
+
+.         sort tn kid year
+
+.         list
+
+     +-------------------------------------------------------------------------------------------------------------------+
+     | year   kid   tn   any_pu~c   any_pr~e   any_~_wk   any_~owk   any_co~e   any_empl   any_mc~d   any_mc~e   working |
+     |-------------------------------------------------------------------------------------------------------------------|
+  1. | 2000     0    0    .136164    .647038    .553059    .173963    .819054    .656131   .0613043   .0631633   .687788 |
+  2. | 2002     0    0    .146509    .614649    .532753    .161371    .796581   .6278443   .0608485   .0683351   .671462 |
+  3. | 2004     0    0    .153908    .594465    .514204    .151906    .774477   .6019489   .0652442   .0691292   .671012 |
+  4. | 2006     0    0     .16679    .599679    .517918    .150426    .782487    .601209   .0687606   .0800522   .668878 |
+  5. | 2000     1    0     .10487    .665787    .584461    .133827    .795112   .6780744     .06801   .0213514   .745333 |
+     |-------------------------------------------------------------------------------------------------------------------|
+  6. | 2002     1    0    .115412    .619229    .542048    .129248    .763855   .6352681   .0800312   .0248275   .714607 |
+  7. | 2004     1    0     .13203    .622631    .544811    .130246     .76943    .635035   .0854626   .0242958   .719308 |
+  8. | 2006     1    0    .126522    .602465    .533107    .120947    .749395   .6143798    .081688   .0268849   .718576 |
+  9. | 2000     0    1    .185358    .633572    .545597     .16591    .857158   .6325728   .1344079   .0755974   .694204 |
+ 10. | 2002     0    1    .195501    .618484    .536185    .164508    .863692   .6277735   .1309183   .0811953    .65744 |
+     |-------------------------------------------------------------------------------------------------------------------|
+ 11. | 2004     0    1    .206799    .570909    .510558    .144885    .818857   .5689119   .1140734   .0768757   .639127 |
+ 12. | 2006     0    1     .14401    .623374    .541774    .152228    .790728   .6189651   .0646041    .061703   .697775 |
+ 13. | 2000     1    1    .190723    .684769    .583791    .144611    .874392   .6948216   .1534094   .0193537   .752261 |
+ 14. | 2002     1    1    .203413     .61398    .529313    .147907    .858821   .6337699   .1688996    .028662   .700028 |
+ 15. | 2004     1    1    .191201    .603923    .530638    .139185    .817443    .615327    .135235   .0225852   .691286 |
+     |-------------------------------------------------------------------------------------------------------------------|
+ 16. | 2006     1    1    .205096    .593253    .515502    .138686    .818001    .599501   .1387993   .0318335   .703425 |
+     +-------------------------------------------------------------------------------------------------------------------+
+
+. 
+.         local inv_golden_ratio = 2 / ( sqrt(5) + 1 )
+
+. 
+.         twoway ///
+>                 (connected any_public year if tn == 0 & kid == 1, lpattern(dash) lcolor(gray) mcolor(red) msymbol(D)) ///
+>                 (connected any_public year if tn == 0 & kid == 0, lpattern(dash) lcolor(gray) mcolor(red) msymbol(T)) ///
+>                 (connected any_public year if tn == 1 & kid == 1, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(s) ) ///
+>                 (connected any_public year if tn == 1 & kid == 0, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(o) ) ///
+>                 , ///
+>                 ylabel(, nogrid angle(horizontal)  ) ///
+>                 scheme(s2mono) ///
+>                 graphregion(fcolor(white)) ///
+>                 xline(2005) ///
+>                 aspectratio(`inv_golden_ratio') ///
+>                 legend(off) ///
+>                 yscale( nofextend ) xscale(nofextend) ///
+>                 xlabel(2000 "2000-2001" 2002 "2002-2003" 2004 "2004-2005" 2006 "2006-07") ///
+>                 xtitle(" ") ytitle(" ") 
+
+.          graph save ../gph/any_public_kid.gph, replace
+file ../gph/any_public_kid.gph saved
+
+. 
+.         twoway ///
+>                 (connected any_private year if tn == 0 & kid == 1, lpattern(dash) lcolor(gray) mcolor(red) msymbol(D)) /// 
+>                 (connected any_private year if tn == 0 & kid == 0, lpattern(dash) lcolor(gray) mcolor(red) msymbol(T)) ///
+>                 (connected any_private year if tn == 1 & kid == 1, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(s) ) ///
+>                 (connected any_private year if tn == 1 & kid == 0, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(o) ) ///
+>                 , ///
+>                 ylabel(, nogrid angle(horizontal)  ) ///
+>                 scheme(s2mono) ///
+>                 aspectratio(`inv_golden_ratio') ///
+>                 graphregion(fcolor(white)) ///
+>                 xline(2005) ///
+>                 legend(off) ///
+>                 yscale( nofextend ) xscale(nofextend) ///
+>                 xlabel(2000 "2000-2001" 2002 "2002-2003" 2004 "2004-2005" 2006 "2006-07") ///
+>                 xtitle(" ") ytitle(" ") 
+
+.         graph save ../gph/any_private_kid.gph, replace
+file ../gph/any_private_kid.gph saved
+
+. 
+.         twoway ///
+>                 (connected working year if tn == 0 & kid == 1, lpattern(dash) lcolor(gray) mcolor(red) msymbol(D)) ///
+>                 (connected working year if tn == 0 & kid == 0, lpattern(dash) lcolor(gray) mcolor(red) msymbol(T)) ///
+>                 (connected working year if tn == 1 & kid == 1, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(s) ) ///
+>                 (connected working year if tn == 1 & kid == 0, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(o) ) ///
+>                 , ///
+>                 ylabel(, nogrid angle(horizontal)  ) ///
+>                 scheme(s2mono) ///
+>                 graphregion(fcolor(white)) ///
+>                 xline(2005) ///
+>                 legend(off) ///
+>                 yscale( nofextend ) xscale(nofextend) ///
+>                 aspectratio(`inv_golden_ratio') ///
+>                 xlabel(2000 "2000-2001" 2002 "2002-2003" 2004 "2004-2005" 2006 "2006-07") ///
+>                 xtitle(" ") ytitle(" ") 
+
+.         graph save ../gph/working_kid.gph, replace
+file ../gph/working_kid.gph saved
+
+. 
+. restore
+
+. 
+. ************************************************************
+. **   Long-run triple-difference figures, FP
+. ************************************************************
+. 
+. preserve
+
+. 
+.         keep if south == 1
+(1,998 observations deleted)
+
+. 
+.         keep if year >= 1998 & year <= 2011
+(364 observations deleted)
+
+.         replace year = 2 * floor(year / 2)
+(196 real changes made)
+
+. 
+.         collapse (mean) any_p* any_coverage any_empl any_m* working, by(year tn kid)
+
+.         sort tn kid year
+
+.         list
+
+     +-------------------------------------------------------------------------------------------------------------------+
+     | year   kid   tn   any_pu~c   any_pr~e   any_~_wk   any_~owk   any_co~e   any_empl   any_mc~d   any_mc~e   working |
+     |-------------------------------------------------------------------------------------------------------------------|
+  1. | 1998     0    0    .126961     .64355    .560431    .169042    .813935   .6564088   .0507171   .0582779   .692055 |
+  2. | 2000     0    0    .136164    .647038    .553059    .173963    .819054    .656131   .0613043   .0631633   .687788 |
+  3. | 2002     0    0    .146509    .614649    .532753    .161371    .796581   .6278443   .0608485   .0683351   .671462 |
+  4. | 2004     0    0    .153908    .594465    .514204    .151906    .774477   .6019489   .0652442   .0691292   .671012 |
+  5. | 2006     0    0     .16679    .599679    .517918    .150426    .782487    .601209   .0687606   .0800522   .668878 |
+     |-------------------------------------------------------------------------------------------------------------------|
+  6. | 2008     0    0     .17573     .57486     .48541    .153677    .764136   .5758361   .0739118   .0802544   .658343 |
+  7. | 2010     0    0    .182919    .556468    .471338    .151604    .753999   .5511867   .0837689   .0830466   .626143 |
+  8. | 1998     1    0    .109805     .66864    .588697    .136522    .801045   .6806471   .0627325   .0239347   .734455 |
+  9. | 2000     1    0     .10487    .665787    .584461    .133827    .795112   .6780744     .06801   .0213514   .745333 |
+ 10. | 2002     1    0    .115412    .619229    .542048    .129248    .763855   .6352681   .0800312   .0248275   .714607 |
+     |-------------------------------------------------------------------------------------------------------------------|
+ 11. | 2004     1    0     .13203    .622631    .544811    .130246     .76943    .635035   .0854626   .0242958   .719308 |
+ 12. | 2006     1    0    .126522    .602465    .533107    .120947    .749395   .6143798    .081688   .0268849   .718576 |
+ 13. | 2008     1    0    .142073    .588684    .503433    .132947    .745644   .5971993   .0915865   .0295089   .700002 |
+ 14. | 2010     1    0    .155248    .563785    .482944    .123735    .724636   .5693179   .0973933   .0289202   .673543 |
+ 15. | 1998     0    1    .179886    .638107    .571788    .143691    .864886   .6497046   .1372378   .0507257   .711487 |
+     |-------------------------------------------------------------------------------------------------------------------|
+ 16. | 2000     0    1    .185358    .633572    .545597     .16591    .857158   .6325728   .1344079   .0755974   .694204 |
+ 17. | 2002     0    1    .195501    .618484    .536185    .164508    .863692   .6277735   .1309183   .0811953    .65744 |
+ 18. | 2004     0    1    .206799    .570909    .510558    .144885    .818857   .5689119   .1140734   .0768757   .639127 |
+ 19. | 2006     0    1     .14401    .623374    .541774    .152228    .790728   .6189651   .0646041    .061703   .697775 |
+ 20. | 2008     0    1    .160109    .564341     .48953    .141423    .766023   .5522857   .0863988   .0724193   .658132 |
+     |-------------------------------------------------------------------------------------------------------------------|
+ 21. | 2010     0    1    .183877    .583138    .495425    .166082    .791264   .5854318   .0782826   .0847537   .660696 |
+ 22. | 1998     1    1    .185439    .646672    .564455    .147742    .877071   .6600943   .1590506   .0148331    .72478 |
+ 23. | 2000     1    1    .190723    .684769    .583791    .144611    .874392   .6948216   .1534094   .0193537   .752261 |
+ 24. | 2002     1    1    .203413     .61398    .529313    .147907    .858821   .6337699   .1688996    .028662   .700028 |
+ 25. | 2004     1    1    .191201    .603923    .530638    .139185    .817443    .615327    .135235   .0225852   .691286 |
+     |-------------------------------------------------------------------------------------------------------------------|
+ 26. | 2006     1    1    .205096    .593253    .515502    .138686    .818001    .599501   .1387993   .0318335   .703425 |
+ 27. | 2008     1    1    .218464     .56382    .476358    .136825    .791328    .569729   .1473593   .0351398   .664814 |
+ 28. | 2010     1    1    .218357    .546301    .469661    .139932    .789946   .5553964   .1673013   .0270437   .657588 |
+     +-------------------------------------------------------------------------------------------------------------------+
+
+. 
+.         local inv_golden_ratio = 2 / ( sqrt(5) + 1 )
+
+. 
+.         twoway ///
+>          (connected any_public year if tn == 0 & kid == 1, lpattern(dash) lcolor(gray) mcolor(red) msymbol(D)) ///
+>          (connected any_public year if tn == 0 & kid == 0, lpattern(dash) lcolor(gray) mcolor(red) msymbol(T)) ///
+>          (connected any_public year if tn == 1 & kid == 1, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(s) ) ///
+>          (connected any_public year if tn == 1 & kid == 0, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(o) ) ///
+>                 , ///
+>                 ylabel(, nogrid angle(horizontal)  ) ///
+>                 ylabel(0.12(0.02)0.24) ///
+>                 scheme(s2mono) ///
+>                 graphregion(fcolor(white)) ///
+>                 xline(2005) ///
+>                 legend(region(style(none))) ///
+>                 aspectratio(`inv_golden_ratio') ///
+>                 legend(off) ///
+>                 yscale( nofextend ) xscale(nofextend) ///
+>                 xlabel(1998 "1998-1999" 2000 "2000-2001" 2002 "2002-2003" 2004 "2004-2005" 2006 "2006-2007" 2008 "2008-2009" 2010 "2010-11") ///
+>                 xtitle(" ") ytitle(" ") 
+
+.          graph save ../gph/any_public_kid-longterm.gph, replace
+file ../gph/any_public_kid-longterm.gph saved
+
+. 
+.         sum any_private 
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+ any_private |         28    .6088062    .0363928   .5463006   .6847691
+
+.         format any_private %-9.2f
+
+.         local inv_golden_ratio = 2 / ( sqrt(5) + 1 )
+
+. 
+.         twoway ///
+>          (connected any_private year if tn == 0 & kid == 1, lpattern(dash) lcolor(gray) mcolor(red) msymbol(D)) ///
+>          (connected any_private year if tn == 0 & kid == 0, lpattern(dash) lcolor(gray) mcolor(red) msymbol(T)) ///
+>          (connected any_private year if tn == 1 & kid == 1, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(s) ) ///
+>          (connected any_private year if tn == 1 & kid == 0, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(o) ) ///
+>                 , ///
+>                 ylabel(, nogrid angle(horizontal)  ) ///
+>                 ylabel(0.54(0.02)0.70) ///
+>                 scheme(s2mono) ///
+>                 graphregion(fcolor(white)) ///
+>                 xline(2005) ///
+>                 legend(region(style(none))) ///
+>                 aspectratio(`inv_golden_ratio') ///
+>                 legend(off) ///
+>                 yscale( nofextend ) xscale(nofextend) ///
+>                 xlabel(1998 "1998-1999" 2000 "2000-2001" 2002 "2002-2003" 2004 "2004-2005" 2006 "2006-2007" 2008 "2008-2009" 2010 "2010-11") ///
+>                 xtitle(" ") ytitle(" ") 
+
+.          graph save ../gph/any_private_kid-longterm.gph, replace
+file ../gph/any_private_kid-longterm.gph saved
+
+. 
+.         twoway ///
+>          (connected working year if tn == 0 & kid == 1, lpattern(dash) lcolor(gray) mcolor(red) msymbol(D)) ///
+>          (connected working year if tn == 0 & kid == 0, lpattern(dash) lcolor(gray) mcolor(red) msymbol(T)) ///
+>          (connected working year if tn == 1 & kid == 1, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(s) ) ///
+>          (connected working year if tn == 1 & kid == 0, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(o) ) ///
+>                 , ///
+>                 ylabel(, nogrid angle(horizontal)  ) ///
+>                 ylabel(0.66(0.02)0.78) ///
+>                 scheme(s2mono) ///
+>                 graphregion(fcolor(white)) ///
+>                 xline(2005) ///
+>                 legend(region(style(none))) ///
+>                 aspectratio(`inv_golden_ratio') ///
+>                 legend(off) ///
+>                 yscale( nofextend ) xscale(nofextend) ///
+>                 xlabel(1998 "1998-1999" 2000 "2000-2001" 2002 "2002-2003" 2004 "2004-2005" 2006 "2006-2007" 2008 "2008-2009" 2010 "2010-11") ///
+>                 xtitle(" ") ytitle(" ") 
+
+.          graph save ../gph/working_kid-longterm.gph, replace
+file ../gph/working_kid-longterm.gph saved
+
+. 
+. restore
+
+. 
+. ************************************************************
+. **   difference-in-difference plots, FP
+. ************************************************************
+. 
+. preserve
+
+.         keep if south == 1
+(1,998 observations deleted)
+
+.         keep if year >= 2000 & year <= 2007
+(532 observations deleted)
+
+. 
+.         collapse (mean) any_p* any_coverage any_empl any_m* working, by(year tn)
+
+. 
+.         tab year, missing
+
+Survey year |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       2000 |          2       12.50       12.50
+       2001 |          2       12.50       25.00
+       2002 |          2       12.50       37.50
+       2003 |          2       12.50       50.00
+       2004 |          2       12.50       62.50
+       2005 |          2       12.50       75.00
+       2006 |          2       12.50       87.50
+       2007 |          2       12.50      100.00
+------------+-----------------------------------
+      Total |         16      100.00
+
+.         replace year = 2 * floor(year/2)
+(8 real changes made)
+
+.         tab year, missing
+
+Survey year |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       2000 |          4       25.00       25.00
+       2002 |          4       25.00       50.00
+       2004 |          4       25.00       75.00
+       2006 |          4       25.00      100.00
+------------+-----------------------------------
+      Total |         16      100.00
+
+.         collapse (mean) any_p* any_coverage any_empl any_m* working, by(year tn)
+
+. 
+.         sort tn year
+
+.         list
+
+     +-------------------------------------------------------------------------------------------------------------+
+     | year   tn   any_pu~c   any_pr~e   any_~_wk   any_~owk   any_co~e   any_empl   any_mc~d   any_mc~e   working |
+     |-------------------------------------------------------------------------------------------------------------|
+  1. | 2000    0    .120517    .656412     .56876    .153895    .807083   .6671026   .0646572   .0422573    .71656 |
+  2. | 2002    0    .130961    .616939    .537401    .145309    .780218   .6315562   .0704398   .0465813   .693034 |
+  3. | 2004    0    .142969    .608548    .529507    .141076    .771953    .618492   .0753534   .0467125    .69516 |
+  4. | 2006    0    .146656    .601072    .525513    .135686    .765941   .6077944   .0752243   .0534685   .693727 |
+  5. | 2000    1    .188041    .659171    .564694    .155261    .865775   .6636972   .1439086   .0474756   .723233 |
+     |-------------------------------------------------------------------------------------------------------------|
+  6. | 2002    1    .199457    .616232    .532749    .156208    .861257   .6307717    .149909   .0549286   .678734 |
+  7. | 2004    1       .199    .587416    .520598    .142035     .81815   .5921194   .1246542   .0497305   .665207 |
+  8. | 2006    1    .174553    .608314    .528638    .145457    .804365    .609233   .1017017   .0467683     .7006 |
+     +-------------------------------------------------------------------------------------------------------------+
+
+. 
+.         local inv_golden_ratio = 2 / ( sqrt(5) + 1 )
+
+. 
+.         twoway ///
+>          (connected any_public year if tn == 0, lpattern(dash) lcolor(gray) mcolor(red) msymbol(i) yaxis(1) ) ///
+>          (connected any_public year if tn == 1, lpattern(solid) lcolor(gray) mcolor(blue) yaxis(2) msymbol(o) ) ///
+>          , /// 
+>                 scheme(s2mono) ///
+>                 graphregion(fcolor(white)) ///
+>                 xline(2005) ///
+>                 legend(off) ///
+>                 yscale( nofextend ) xscale(nofextend) ///
+>                 aspectratio(`inv_golden_ratio') ///
+>                 xlabel(2000 "2000-2001" 2002 "2002-2003" 2004 "2004-2005" 2006 "2006-2007") ///
+>           ylabel(0.10(0.02)0.18, nogrid axis(1) angle(horizontal) ) ylabel(0.16(0.02)0.24, axis(2) angle(horizontal) ) ///
+>                 xtitle(" ") ytitle(" ", axis(1) ) ytitle(" ", axis(2) ) 
+
+.          graph save ../gph/any_public.gph, replace
+file ../gph/any_public.gph saved
+
+. 
+. 
+.         sum any_private if tn == 0
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+ any_private |          4    .6207428    .0246472   .6010717   .6564124
+
+.         sum any_private if tn == 1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+ any_private |          4     .617783    .0301506   .5874159   .6591707
+
+.         format any_private %-9.2f
+
+.         local inv_golden_ratio = 2 / ( sqrt(5) + 1 )
+
+. 
+.         twoway ///
+>          (connected any_private year if tn == 0, lpattern(dash) lcolor(gray) mcolor(red) msymbol(i) yaxis(1)) ///
+>          (connected any_private year if tn == 1, lpattern(solid) lcolor(blue) msymbol(o) mcolor(blue) yaxis(2) ) ///
+>          , /// 
+>           ylabel(0.60(0.02)0.68, axis(1) nogrid angle(horizontal)) ylabel(0.58(0.02)0.66, axis(2) angle(horizontal)) ///
+>                 scheme(s2mono) ///
+>                 graphregion(fcolor(white)) ///
+>                 xline(2005) ///
+>                 aspectratio(`inv_golden_ratio') ///
+>                 legend(off) ///
+>                 yscale( nofextend ) xscale(nofextend) ///
+>                 xlabel(2000 "2000-2001" 2002 "2002-2003" 2004 "2004-2005" 2006 "2006-2007") ///
+>                 xtitle(" ") ytitle(" ", axis(1) ) ytitle(" ", axis(2) ) 
+
+. 
+.          graph save ../gph/any_private.gph, replace
+file ../gph/any_private.gph saved
+
+. 
+.         twoway ///
+>          (connected working year if tn == 0, lpattern(dash) lcolor(gray) mcolor(red) msymbol(i) yaxis(1)) ///
+>          (connected working year if tn == 1, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(o) yaxis(2)) ///
+>          , /// 
+>           ylabel(0.66(0.02)0.78, axis(1) nogrid angle(horizontal)) ylabel(0.64(0.02)0.76, axis(2) angle(horizontal)) ///
+>                 scheme(s2mono) ///
+>                 graphregion(fcolor(white)) ///
+>                 aspectratio(`inv_golden_ratio') ///
+>                 xline(2005) ///
+>                 legend(off) ///
+>                 yscale( nofextend ) xscale(nofextend) ///
+>                 xlabel(2000 "2000-2001" 2002 "2002-2003" 2004 "2004-2005" 2006 "2006-2007") ///
+>                 xtitle(" ") ytitle(" ", axis(1) ) ytitle(" ", axis(2) ) 
+
+.          graph save ../gph/working.gph, replace
+file ../gph/working.gph saved
+
+. 
+. restore
+
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. ************************************************************
+. ** "event study" appendix figures
+. ************************************************************
+. keep if year >= 2000 & year <= 2011
+(1,530 observations deleted)
+
+. keep if south == 1
+(888 observations deleted)
+
+. 
+. gen nokid = 1 - kid
+
+. 
+. forvalues y = 2000/2011 {
+  2.  gen evt`y' = (year == `y') * (statefip == 47) * nokid
+  3. }
+
+. drop evt2000
+
+. 
+. xi i.statefip*i.year i.year*i.nokid i.statefip*i.nokid
+i.statefip        _Istatefip_1-54     (naturally coded; _Istatefip_1 omitted)
+i.year            _Iyear_2000-2011    (naturally coded; _Iyear_2000 omitted)
+i.sta~p*i.year    _IstaXyea_#_#       (coded as above)
+i.nokid           _Inokid_0-1         (naturally coded; _Inokid_0 omitted)
+i.year*i.nokid    _IyeaXnok_#_#       (coded as above)
+i.sta~p*i.nokid   _IstaXnok_#_#       (coded as above)
+
+. 
+. reg any_public evt* _I*
+
+      Source |       SS           df       MS      Number of obs   =       336
+-------------+----------------------------------   F(203, 132)     =      7.41
+       Model |  .484614524       203  .002387264   Prob > F        =    0.0000
+    Residual |  .042514513       132   .00032208   R-squared       =    0.9193
+-------------+----------------------------------   Adj R-squared   =    0.7953
+       Total |  .527129038       335   .00157352   Root MSE        =    .01795
+
+-----------------------------------------------------------------------------------
+       any_public | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+------------------+----------------------------------------------------------------
+          evt2001 |  -.0224801   .0372481    -0.60   0.547    -.0961605    .0512003
+          evt2002 |  -.0462923   .0372481    -1.24   0.216    -.1199727    .0273881
+          evt2003 |   .0191114   .0372481     0.51   0.609     -.054569    .0927918
+          evt2004 |   .0145862   .0372481     0.39   0.696    -.0590942    .0882666
+          evt2005 |   .0236926   .0372481     0.64   0.526    -.0499878     .097373
+          evt2006 |  -.0567469   .0372481    -1.52   0.130    -.1304273    .0169335
+          evt2007 |  -.0951222   .0372481    -2.55   0.012    -.1688026   -.0214418
+          evt2008 |   -.090856   .0372481    -2.44   0.016    -.1645364   -.0171756
+          evt2009 |  -.0423309   .0372481    -1.14   0.258    -.1160113    .0313495
+          evt2010 |  -.0336042   .0372481    -0.90   0.369    -.1072846    .0400762
+          evt2011 |  -.0398607   .0372481    -1.07   0.287    -.1135411    .0338197
+     _Istatefip_5 |   .0435237   .0186794     2.33   0.021     .0065741    .0804734
+    _Istatefip_12 |   .0124492   .0186794     0.67   0.506    -.0245005    .0493989
+    _Istatefip_13 |    .017041   .0186794     0.91   0.363    -.0199087    .0539907
+    _Istatefip_21 |   .0555986   .0186794     2.98   0.003     .0186489    .0925483
+    _Istatefip_22 |    .045244   .0186794     2.42   0.017     .0082943    .0821937
+    _Istatefip_28 |    .047317   .0186794     2.53   0.012     .0103673    .0842667
+    _Istatefip_37 |   .0428939   .0186794     2.30   0.023     .0059442    .0798436
+    _Istatefip_40 |   .0369027   .0186794     1.98   0.050    -.0000469    .0738524
+    _Istatefip_45 |   .0474629   .0186794     2.54   0.012     .0105132    .0844126
+    _Istatefip_47 |    .114806   .0225365     5.09   0.000     .0702265    .1593855
+    _Istatefip_48 |   -.013326   .0186794    -0.71   0.477    -.0502757    .0236237
+    _Istatefip_51 |   .0327389   .0186794     1.75   0.082    -.0042107    .0696886
+    _Istatefip_54 |   .0380578   .0186794     2.04   0.044     .0011081    .0750075
+      _Iyear_2001 |   .0336283    .018624     1.81   0.073    -.0032119    .0704685
+      _Iyear_2002 |   .0309147    .018624     1.66   0.099    -.0059255    .0677549
+      _Iyear_2003 |   .0373387    .018624     2.00   0.047     .0004985    .0741789
+      _Iyear_2004 |   .0769258    .018624     4.13   0.000     .0400856     .113766
+      _Iyear_2005 |    .073596    .018624     3.95   0.000     .0367558    .1104362
+      _Iyear_2006 |   .0376583    .018624     2.02   0.045     .0008181    .0744985
+      _Iyear_2007 |   .0587759    .018624     3.16   0.002     .0219357    .0956161
+      _Iyear_2008 |   .0582015    .018624     3.13   0.002     .0213613    .0950417
+      _Iyear_2009 |   .0608608    .018624     3.27   0.001     .0240206     .097701
+      _Iyear_2010 |   .0770755    .018624     4.14   0.000     .0402353    .1139157
+      _Iyear_2011 |   .1234279    .018624     6.63   0.000     .0865877    .1602681
+ _IstaXyea_5_2001 |  -.0582676   .0253803    -2.30   0.023    -.1084723   -.0080629
+ _IstaXyea_5_2002 |   -.015383   .0253803    -0.61   0.545    -.0655877    .0348217
+ _IstaXyea_5_2003 |  -.0279714   .0253803    -1.10   0.272    -.0781761    .0222333
+ _IstaXyea_5_2004 |  -.0669961   .0253803    -2.64   0.009    -.1172008   -.0167914
+ _IstaXyea_5_2005 |  -.0621373   .0253803    -2.45   0.016     -.112342   -.0119326
+ _IstaXyea_5_2006 |  -.0478792   .0253803    -1.89   0.061    -.0980839    .0023256
+ _IstaXyea_5_2007 |  -.0618975   .0253803    -2.44   0.016    -.1121022   -.0116928
+ _IstaXyea_5_2008 |  -.0467979   .0253803    -1.84   0.067    -.0970027    .0034068
+ _IstaXyea_5_2009 |  -.0404543   .0253803    -1.59   0.113     -.090659    .0097504
+ _IstaXyea_5_2010 |  -.0573868   .0253803    -2.26   0.025    -.1075916   -.0071821
+ _IstaXyea_5_2011 |  -.0852416   .0253803    -3.36   0.001    -.1354463   -.0350369
+_IstaXyea_12_2001 |  -.0307057   .0253803    -1.21   0.229    -.0809104     .019499
+_IstaXyea_12_2002 |    -.01418   .0253803    -0.56   0.577    -.0643847    .0360247
+_IstaXyea_12_2003 |  -.0253045   .0253803    -1.00   0.321    -.0755093    .0249002
+_IstaXyea_12_2004 |  -.0438237   .0253803    -1.73   0.087    -.0940284    .0063811
+_IstaXyea_12_2005 |  -.0460956   .0253803    -1.82   0.072    -.0963004    .0041091
+_IstaXyea_12_2006 |  -.0261496   .0253803    -1.03   0.305    -.0763543    .0240551
+_IstaXyea_12_2007 |  -.0448032   .0253803    -1.77   0.080     -.095008    .0054015
+_IstaXyea_12_2008 |  -.0210065   .0253803    -0.83   0.409    -.0712112    .0291982
+_IstaXyea_12_2009 |  -.0163091   .0253803    -0.64   0.522    -.0665138    .0338956
+_IstaXyea_12_2010 |  -.0143901   .0253803    -0.57   0.572    -.0645948    .0358146
+_IstaXyea_12_2011 |  -.0627375   .0253803    -2.47   0.015    -.1129423   -.0125328
+_IstaXyea_13_2001 |  -.0246022   .0253803    -0.97   0.334    -.0748069    .0256025
+_IstaXyea_13_2002 |  -.0407571   .0253803    -1.61   0.111    -.0909618    .0094476
+_IstaXyea_13_2003 |  -.0444536   .0253803    -1.75   0.082    -.0946583    .0057511
+_IstaXyea_13_2004 |  -.0404687   .0253803    -1.59   0.113    -.0906735     .009736
+_IstaXyea_13_2005 |  -.0285769   .0253803    -1.13   0.262    -.0787816    .0216279
+_IstaXyea_13_2006 |  -.0062294   .0253803    -0.25   0.806    -.0564341    .0439754
+_IstaXyea_13_2007 |  -.0330834   .0253803    -1.30   0.195    -.0832882    .0171213
+_IstaXyea_13_2008 |  -.0241762   .0253803    -0.95   0.343    -.0743809    .0260286
+_IstaXyea_13_2009 |  -.0247934   .0253803    -0.98   0.330    -.0749981    .0254113
+_IstaXyea_13_2010 |  -.0306085   .0253803    -1.21   0.230    -.0808133    .0195962
+_IstaXyea_13_2011 |    -.06558   .0253803    -2.58   0.011    -.1157847   -.0153752
+_IstaXyea_21_2001 |  -.0270957   .0253803    -1.07   0.288    -.0773004     .023109
+_IstaXyea_21_2002 |  -.0187151   .0253803    -0.74   0.462    -.0689199    .0314896
+_IstaXyea_21_2003 |  -.0078891   .0253803    -0.31   0.756    -.0580938    .0423156
+_IstaXyea_21_2004 |  -.0354163   .0253803    -1.40   0.165    -.0856211    .0147884
+_IstaXyea_21_2005 |   -.043421   .0253803    -1.71   0.089    -.0936257    .0067837
+_IstaXyea_21_2006 |  -.0230721   .0253803    -0.91   0.365    -.0732768    .0271326
+_IstaXyea_21_2007 |  -.0043056   .0253803    -0.17   0.866    -.0545104    .0458991
+_IstaXyea_21_2008 |  -.0208149   .0253803    -0.82   0.414    -.0710196    .0293898
+_IstaXyea_21_2009 |  -.0188443   .0253803    -0.74   0.459    -.0690491    .0313604
+_IstaXyea_21_2010 |  -.0163551   .0253803    -0.64   0.520    -.0665598    .0338497
+_IstaXyea_21_2011 |  -.0891971   .0253803    -3.51   0.001    -.1394019   -.0389924
+_IstaXyea_22_2001 |  -.0585179   .0253803    -2.31   0.023    -.1087226   -.0083131
+_IstaXyea_22_2002 |  -.0600021   .0253803    -2.36   0.020    -.1102068   -.0097974
+_IstaXyea_22_2003 |  -.0751087   .0253803    -2.96   0.004    -.1253134   -.0249039
+_IstaXyea_22_2004 |  -.0816824   .0253803    -3.22   0.002    -.1318871   -.0314776
+_IstaXyea_22_2005 |    -.09082   .0253803    -3.58   0.000    -.1410247   -.0406153
+_IstaXyea_22_2006 |  -.0287791   .0253803    -1.13   0.259    -.0789838    .0214256
+_IstaXyea_22_2007 |   -.072361   .0253803    -2.85   0.005    -.1225658   -.0221563
+_IstaXyea_22_2008 |  -.0651717   .0253803    -2.57   0.011    -.1153765    -.014967
+_IstaXyea_22_2009 |  -.0497137   .0253803    -1.96   0.052    -.0999184     .000491
+_IstaXyea_22_2010 |  -.0389739   .0253803    -1.54   0.127    -.0891786    .0112308
+_IstaXyea_22_2011 |  -.1061535   .0253803    -4.18   0.000    -.1563582   -.0559488
+_IstaXyea_28_2001 |  -.0197811   .0253803    -0.78   0.437    -.0699858    .0304237
+_IstaXyea_28_2002 |  -.0264536   .0253803    -1.04   0.299    -.0766583    .0237511
+_IstaXyea_28_2003 |  -.0087226   .0253803    -0.34   0.732    -.0589274    .0414821
+_IstaXyea_28_2004 |  -.0554109   .0253803    -2.18   0.031    -.1056156   -.0052061
+_IstaXyea_28_2005 |  -.0103187   .0253803    -0.41   0.685    -.0605234     .039886
+_IstaXyea_28_2006 |  -.0105423   .0253803    -0.42   0.679     -.060747    .0396624
+_IstaXyea_28_2007 |  -.0345452   .0253803    -1.36   0.176    -.0847499    .0156596
+_IstaXyea_28_2008 |  -.0019989   .0253803    -0.08   0.937    -.0522036    .0482059
+_IstaXyea_28_2009 |    .022537   .0253803     0.89   0.376    -.0276677    .0727418
+_IstaXyea_28_2010 |  -.0510419   .0253803    -2.01   0.046    -.1012467   -.0008372
+_IstaXyea_28_2011 |  -.0939622   .0253803    -3.70   0.000    -.1441669   -.0437574
+_IstaXyea_37_2001 |  -.0196554   .0253803    -0.77   0.440    -.0698602    .0305493
+_IstaXyea_37_2002 |  -.0233379   .0253803    -0.92   0.359    -.0735427    .0268668
+_IstaXyea_37_2003 |  -.0248753   .0253803    -0.98   0.329      -.07508    .0253295
+_IstaXyea_37_2004 |  -.0393104   .0253803    -1.55   0.124    -.0895151    .0108943
+_IstaXyea_37_2005 |  -.0289621   .0253803    -1.14   0.256    -.0791668    .0212427
+_IstaXyea_37_2006 |  -.0180748   .0253803    -0.71   0.478    -.0682795    .0321299
+_IstaXyea_37_2007 |   -.032051   .0253803    -1.26   0.209    -.0822557    .0181538
+_IstaXyea_37_2008 |  -.0101388   .0253803    -0.40   0.690    -.0603435    .0400659
+_IstaXyea_37_2009 |  -.0164513   .0253803    -0.65   0.518     -.066656    .0337535
+_IstaXyea_37_2010 |  -.0170838   .0253803    -0.67   0.502    -.0672885    .0331209
+_IstaXyea_37_2011 |  -.0605649   .0253803    -2.39   0.018    -.1107696   -.0103601
+_IstaXyea_40_2001 |  -.0459863   .0253803    -1.81   0.072     -.096191    .0042184
+_IstaXyea_40_2002 |  -.0272477   .0253803    -1.07   0.285    -.0774524     .022957
+_IstaXyea_40_2003 |  -.0356871   .0253803    -1.41   0.162    -.0858918    .0145176
+_IstaXyea_40_2004 |  -.0540384   .0253803    -2.13   0.035    -.1042432   -.0038337
+_IstaXyea_40_2005 |  -.0551687   .0253803    -2.17   0.032    -.1053735    -.004964
+_IstaXyea_40_2006 |  -.0283843   .0253803    -1.12   0.265     -.078589    .0218204
+_IstaXyea_40_2007 |  -.0200956   .0253803    -0.79   0.430    -.0703003    .0301092
+_IstaXyea_40_2008 |   -.032507   .0253803    -1.28   0.203    -.0827117    .0176978
+_IstaXyea_40_2009 |  -.0325917   .0253803    -1.28   0.201    -.0827964     .017613
+_IstaXyea_40_2010 |  -.0296728   .0253803    -1.17   0.244    -.0798776    .0205319
+_IstaXyea_40_2011 |  -.0924454   .0253803    -3.64   0.000    -.1426501   -.0422406
+_IstaXyea_45_2001 |  -.0125084   .0253803    -0.49   0.623    -.0627131    .0376963
+_IstaXyea_45_2002 |   .0011497   .0253803     0.05   0.964     -.049055    .0513544
+_IstaXyea_45_2003 |  -.0235964   .0253803    -0.93   0.354    -.0738011    .0266084
+_IstaXyea_45_2004 |  -.0461781   .0253803    -1.82   0.071    -.0963829    .0040266
+_IstaXyea_45_2005 |  -.0704297   .0253803    -2.77   0.006    -.1206345    -.020225
+_IstaXyea_45_2006 |  -.0091699   .0253803    -0.36   0.718    -.0593747    .0410348
+_IstaXyea_45_2007 |   -.038022   .0253803    -1.50   0.136    -.0882268    .0121827
+_IstaXyea_45_2008 |  -.0374884   .0253803    -1.48   0.142    -.0876932    .0127163
+_IstaXyea_45_2009 |  -.0166442   .0253803    -0.66   0.513    -.0668489    .0335605
+_IstaXyea_45_2010 |  -.0501347   .0253803    -1.98   0.050    -.1003394    .0000701
+_IstaXyea_45_2011 |  -.0336146   .0253803    -1.32   0.188    -.0838194    .0165901
+_IstaXyea_47_2001 |  -.0237899   .0314804    -0.76   0.451    -.0860612    .0384814
+_IstaXyea_47_2002 |   .0079096   .0314804     0.25   0.802    -.0543617    .0701809
+_IstaXyea_47_2003 |  -.0409456   .0314804    -1.30   0.196    -.1032169    .0213257
+_IstaXyea_47_2004 |  -.0635399   .0314804    -2.02   0.046    -.1258112   -.0012686
+_IstaXyea_47_2005 |  -.0761879   .0314804    -2.42   0.017    -.1384592   -.0139166
+_IstaXyea_47_2006 |  -.0420294   .0314804    -1.34   0.184    -.1043007    .0202419
+_IstaXyea_47_2007 |  -.0158216   .0314804    -0.50   0.616    -.0780929    .0464497
+_IstaXyea_47_2008 |  -.0128503   .0314804    -0.41   0.684    -.0751216     .049421
+_IstaXyea_47_2009 |  -.0408917   .0314804    -1.30   0.196    -.1031631    .0213796
+_IstaXyea_47_2010 |  -.0450022   .0314804    -1.43   0.155    -.1072735    .0172691
+_IstaXyea_47_2011 |  -.0903965   .0314804    -2.87   0.005    -.1526678   -.0281252
+_IstaXyea_48_2001 |  -.0388077   .0253803    -1.53   0.129    -.0890125     .011397
+_IstaXyea_48_2002 |  -.0274138   .0253803    -1.08   0.282    -.0776186    .0227909
+_IstaXyea_48_2003 |  -.0159329   .0253803    -0.63   0.531    -.0661377    .0342718
+_IstaXyea_48_2004 |  -.0486711   .0253803    -1.92   0.057    -.0988758    .0015336
+_IstaXyea_48_2005 |  -.0457958   .0253803    -1.80   0.073    -.0960005     .004409
+_IstaXyea_48_2006 |   -.020481   .0253803    -0.81   0.421    -.0706858    .0297237
+_IstaXyea_48_2007 |   -.032792   .0253803    -1.29   0.199    -.0829967    .0174127
+_IstaXyea_48_2008 |    -.02578   .0253803    -1.02   0.312    -.0759847    .0244248
+_IstaXyea_48_2009 |  -.0120743   .0253803    -0.48   0.635    -.0622791    .0381304
+_IstaXyea_48_2010 |  -.0398882   .0253803    -1.57   0.118     -.090093    .0103165
+_IstaXyea_48_2011 |   -.080366   .0253803    -3.17   0.002    -.1305707   -.0301613
+_IstaXyea_51_2001 |  -.0149723   .0253803    -0.59   0.556     -.065177    .0352325
+_IstaXyea_51_2002 |  -.0147189   .0253803    -0.58   0.563    -.0649236    .0354859
+_IstaXyea_51_2003 |  -.0223617   .0253803    -0.88   0.380    -.0725664     .027843
+_IstaXyea_51_2004 |  -.0625363   .0253803    -2.46   0.015     -.112741   -.0123315
+_IstaXyea_51_2005 |  -.0460117   .0253803    -1.81   0.072    -.0962164     .004193
+_IstaXyea_51_2006 |  -.0195618   .0253803    -0.77   0.442    -.0697665     .030643
+_IstaXyea_51_2007 |  -.0284329   .0253803    -1.12   0.265    -.0786376    .0217718
+_IstaXyea_51_2008 |  -.0171477   .0253803    -0.68   0.500    -.0673524    .0330571
+_IstaXyea_51_2009 |  -.0145137   .0253803    -0.57   0.568    -.0647184    .0356911
+_IstaXyea_51_2010 |  -.0431423   .0253803    -1.70   0.092    -.0933471    .0070624
+_IstaXyea_51_2011 |  -.0755829   .0253803    -2.98   0.003    -.1257876   -.0253782
+_IstaXyea_54_2001 |  -.0174237   .0253803    -0.69   0.494    -.0676284     .032781
+_IstaXyea_54_2002 |   .0267122   .0253803     1.05   0.295    -.0234925    .0769169
+_IstaXyea_54_2003 |   .0079004   .0253803     0.31   0.756    -.0423043    .0581051
+_IstaXyea_54_2004 |  -.0385922   .0253803    -1.52   0.131     -.088797    .0116125
+_IstaXyea_54_2005 |  -.0409014   .0253803    -1.61   0.109    -.0911062    .0093033
+_IstaXyea_54_2006 |   .0314592   .0253803     1.24   0.217    -.0187455     .081664
+_IstaXyea_54_2007 |   -.012579   .0253803    -0.50   0.621    -.0627838    .0376257
+_IstaXyea_54_2008 |  -.0152504   .0253803    -0.60   0.549    -.0654552    .0349543
+_IstaXyea_54_2009 |   .0264546   .0253803     1.04   0.299    -.0237501    .0766593
+_IstaXyea_54_2010 |   .0275813   .0253803     1.09   0.279    -.0226234     .077786
+_IstaXyea_54_2011 |  -.0213291   .0253803    -0.84   0.402    -.0715338    .0288757
+        _Inokid_1 |   .0474504    .009955     4.77   0.000     .0277585    .0671423
+ _IyeaXnok_2001_1 |  -.0020822    .009955    -0.21   0.835    -.0217741    .0176097
+ _IyeaXnok_2002_1 |  -.0002149    .009955    -0.02   0.983    -.0199068    .0194771
+ _IyeaXnok_2003_1 |  -.0022605    .009955    -0.23   0.821    -.0219525    .0174314
+ _IyeaXnok_2004_1 |  -.0102781    .009955    -1.03   0.304      -.02997    .0094138
+ _IyeaXnok_2005_1 |  -.0106369    .009955    -1.07   0.287    -.0303289     .009055
+ _IyeaXnok_2006_1 |   .0046196    .009955     0.46   0.643    -.0150723    .0243116
+ _IyeaXnok_2007_1 |   .0112464    .009955     1.13   0.261    -.0084455    .0309384
+ _IyeaXnok_2008_1 |    .003101    .009955     0.31   0.756    -.0165909    .0227929
+ _IyeaXnok_2009_1 |  -.0004575    .009955    -0.05   0.963    -.0201494    .0192344
+ _IyeaXnok_2010_1 |  -.0089102    .009955    -0.90   0.372    -.0286021    .0107817
+ _IyeaXnok_2011_1 |  -.0004164    .009955    -0.04   0.967    -.0201084    .0192755
+    _IstaXnok_5_1 |    .000264   .0103615     0.03   0.980     -.020232      .02076
+   _IstaXnok_12_1 |  -.0232678   .0103615    -2.25   0.026    -.0437638   -.0027718
+   _IstaXnok_13_1 |  -.0366161   .0103615    -3.53   0.001    -.0571121   -.0161201
+   _IstaXnok_21_1 |  -.0204157   .0103615    -1.97   0.051    -.0409117    .0000803
+   _IstaXnok_22_1 |  -.0019826   .0103615    -0.19   0.849    -.0224786    .0185134
+   _IstaXnok_28_1 |   -.004599   .0103615    -0.44   0.658     -.025095     .015897
+   _IstaXnok_37_1 |  -.0441466   .0103615    -4.26   0.000    -.0646426   -.0236506
+   _IstaXnok_40_1 |  -.0183843   .0103615    -1.77   0.078    -.0388803    .0021117
+   _IstaXnok_45_1 |  -.0194783   .0103615    -1.88   0.062    -.0399743    .0010177
+   _IstaXnok_47_1 |  -.0405346   .0272628    -1.49   0.139    -.0944631     .013394
+   _IstaXnok_48_1 |  -.0130493   .0103615    -1.26   0.210    -.0335453    .0074467
+   _IstaXnok_51_1 |  -.0318178   .0103615    -3.07   0.003    -.0523138   -.0113218
+   _IstaXnok_54_1 |   .0169961   .0103615     1.64   0.103    -.0034999    .0374921
+            _cons |   .0709983   .0136314     5.21   0.000      .044034    .0979626
+-----------------------------------------------------------------------------------
+
+. 
+. matrix results = J(12,1,0)
+
+. local row = 2
+
+. forvalues i = 2001/2011 {
+  2.  matrix results[`row',1] = _b[evt`i']
+  3.  local row = `row' + 1
+  4. }
+
+. 
+.  preserve
+
+. 
+. drop _all
+
+. svmat results
+number of observations will be reset to 12
+Press any key to continue, or Break to abort
+Number of observations (_N) was 0, now 12.
+
+. rename results1 evt_coeffs
+
+. gen year = _n + 1999
+
+. 
+. local inv_golden_ratio = 2 / ( sqrt(5) + 1 )
+
+. twoway ///
+>         (connected evt_coeffs year, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(o)) /// 
+>                 , ///
+>                 ylabel(, nogrid angle(horizontal)  ) ///
+>                 scheme(s2mono) ///
+>                 aspectratio(`inv_golden_ratio') ///
+>                 graphregion(fcolor(white)) ///
+>                 xline(2005.1) ///
+>                 legend(off) ///
+>                 yscale( nofextend ) xscale(nofextend) ///
+>                 xlabel(2000(1)2011) ylabel(-0.12(0.04)0.12) /// 
+>                 xtitle(" ") ytitle(" ") 
+
+.         graph save ../gph/event_study_working.gph, replace
+file ../gph/event_study_working.gph saved
+
+.         graph export ../gph/event_study_any_public.eps, replace
+file ../gph/event_study_any_public.eps saved as EPS format
+
+.         !sz ../gph/event_study_any_public.eps
+'sz' is not recognized as an internal or external command,
+operable program or batch file.
+
+. 
+.  restore
+
+. 
+. 
+. 
+. 
+. reg working evt* _I*
+
+      Source |       SS           df       MS      Number of obs   =       336
+-------------+----------------------------------   F(203, 132)     =     11.79
+       Model |  .769219669       203  .003789259   Prob > F        =    0.0000
+    Residual |  .042423933       132  .000321393   R-squared       =    0.9477
+-------------+----------------------------------   Adj R-squared   =    0.8673
+       Total |  .811643602       335  .002422817   Root MSE        =    .01793
+
+-----------------------------------------------------------------------------------
+          working | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+------------------+----------------------------------------------------------------
+          evt2001 |   .0118013   .0372084     0.32   0.752    -.0618005    .0854032
+          evt2002 |   .0228821   .0372084     0.61   0.540    -.0507198     .096484
+          evt2003 |  -.0089443   .0372084    -0.24   0.810    -.0825461    .0646576
+          evt2004 |   .0145098   .0372084     0.39   0.697    -.0590921    .0881116
+          evt2005 |  -.0094108   .0372084    -0.25   0.801    -.0830126    .0641911
+          evt2006 |   .0453624   .0372084     1.22   0.225    -.0282394    .1189643
+          evt2007 |   .0555597   .0372084     1.49   0.138    -.0180422    .1291615
+          evt2008 |    .037459   .0372084     1.01   0.316    -.0361428    .1110609
+          evt2009 |   .0453207   .0372084     1.22   0.225    -.0282811    .1189226
+          evt2010 |    .046522   .0372084     1.25   0.213    -.0270799    .1201239
+          evt2011 |   .0673188   .0372084     1.81   0.073    -.0062831    .1409207
+     _Istatefip_5 |   -.032752   .0186595    -1.76   0.082    -.0696623    .0041582
+    _Istatefip_12 |  -.0058482   .0186595    -0.31   0.754    -.0427585    .0310621
+    _Istatefip_13 |   .0129011   .0186595     0.69   0.491    -.0240092    .0498114
+    _Istatefip_21 |  -.0277964   .0186595    -1.49   0.139    -.0647067    .0091139
+    _Istatefip_22 |  -.0673295   .0186595    -3.61   0.000    -.1042398   -.0304192
+    _Istatefip_28 |  -.0257594   .0186595    -1.38   0.170    -.0626697    .0111509
+    _Istatefip_37 |   .0070784   .0186595     0.38   0.705    -.0298319    .0439887
+    _Istatefip_40 |  -.0636853   .0186595    -3.41   0.001    -.1005955    -.026775
+    _Istatefip_45 |   .0201002   .0186595     1.08   0.283    -.0168101    .0570105
+    _Istatefip_47 |  -.0015499   .0225125    -0.07   0.945    -.0460819    .0429821
+    _Istatefip_48 |  -.0493695   .0186595    -2.65   0.009    -.0862798   -.0124592
+    _Istatefip_51 |   .0106215   .0186595     0.57   0.570    -.0262888    .0475318
+    _Istatefip_54 |  -.0757652   .0186595    -4.06   0.000    -.1126755    -.038855
+      _Iyear_2001 |  -.0243345   .0186042    -1.31   0.193    -.0611354    .0124665
+      _Iyear_2002 |  -.0682649   .0186042    -3.67   0.000    -.1050659    -.031464
+      _Iyear_2003 |  -.0501589   .0186042    -2.70   0.008    -.0869599    -.013358
+      _Iyear_2004 |  -.0435379   .0186042    -2.34   0.021    -.0803389    -.006737
+      _Iyear_2005 |  -.0628807   .0186042    -3.38   0.001    -.0996817   -.0260798
+      _Iyear_2006 |  -.0709718   .0186042    -3.81   0.000    -.1077727   -.0341708
+      _Iyear_2007 |  -.0542575   .0186042    -2.92   0.004    -.0910585   -.0174566
+      _Iyear_2008 |  -.0706148   .0186042    -3.80   0.000    -.1074157   -.0338139
+      _Iyear_2009 |  -.0913684   .0186042    -4.91   0.000    -.1281693   -.0545675
+      _Iyear_2010 |  -.1043743   .0186042    -5.61   0.000    -.1411752   -.0675733
+      _Iyear_2011 |    -.10158   .0186042    -5.46   0.000    -.1383809   -.0647791
+ _IstaXyea_5_2001 |   .0242972   .0253532     0.96   0.340     -.025854    .0744484
+ _IstaXyea_5_2002 |   .0576274   .0253532     2.27   0.025     .0074762    .1077786
+ _IstaXyea_5_2003 |   .0254844   .0253532     1.01   0.317    -.0246668    .0756356
+ _IstaXyea_5_2004 |   .0206142   .0253532     0.81   0.418     -.029537    .0707654
+ _IstaXyea_5_2005 |   .0806207   .0253532     3.18   0.002     .0304695    .1307719
+ _IstaXyea_5_2006 |   .0611695   .0253532     2.41   0.017     .0110183    .1113207
+ _IstaXyea_5_2007 |    .056932   .0253532     2.25   0.026     .0067808    .1070832
+ _IstaXyea_5_2008 |    .074657   .0253532     2.94   0.004     .0245058    .1248082
+ _IstaXyea_5_2009 |   .0613348   .0253532     2.42   0.017     .0111836     .111486
+ _IstaXyea_5_2010 |   .0400856   .0253532     1.58   0.116    -.0100656    .0902369
+ _IstaXyea_5_2011 |   .0422172   .0253532     1.67   0.098     -.007934    .0923684
+_IstaXyea_12_2001 |    .029806   .0253532     1.18   0.242    -.0203452    .0799572
+_IstaXyea_12_2002 |   .0362276   .0253532     1.43   0.155    -.0139237    .0863788
+_IstaXyea_12_2003 |   .0203436   .0253532     0.80   0.424    -.0298076    .0704948
+_IstaXyea_12_2004 |    .019621   .0253532     0.77   0.440    -.0305302    .0697722
+_IstaXyea_12_2005 |   .0433103   .0253532     1.71   0.090    -.0068409    .0934615
+_IstaXyea_12_2006 |    .060829   .0253532     2.40   0.018     .0106777    .1109802
+_IstaXyea_12_2007 |   .0549753   .0253532     2.17   0.032     .0048241    .1051265
+_IstaXyea_12_2008 |   .0387076   .0253532     1.53   0.129    -.0114436    .0888588
+_IstaXyea_12_2009 |   .0182194   .0253532     0.72   0.474    -.0319318    .0683707
+_IstaXyea_12_2010 |   .0212853   .0253532     0.84   0.403    -.0288659    .0714365
+_IstaXyea_12_2011 |   .0226756   .0253532     0.89   0.373    -.0274756    .0728268
+_IstaXyea_13_2001 |   -.013896   .0253532    -0.55   0.585    -.0640472    .0362553
+_IstaXyea_13_2002 |   .0157506   .0253532     0.62   0.536    -.0344006    .0659018
+_IstaXyea_13_2003 |  -.0041212   .0253532    -0.16   0.871    -.0542724    .0460301
+_IstaXyea_13_2004 |  -.0046724   .0253532    -0.18   0.854    -.0548236    .0454788
+_IstaXyea_13_2005 |   .0054556   .0253532     0.22   0.830    -.0446956    .0556068
+_IstaXyea_13_2006 |   .0201502   .0253532     0.79   0.428     -.030001    .0703015
+_IstaXyea_13_2007 |   .0164305   .0253532     0.65   0.518    -.0337207    .0665817
+_IstaXyea_13_2008 |   .0184415   .0253532     0.73   0.468    -.0317097    .0685927
+_IstaXyea_13_2009 |  -.0139951   .0253532    -0.55   0.582    -.0641463    .0361562
+_IstaXyea_13_2010 |  -.0079166   .0253532    -0.31   0.755    -.0580678    .0422346
+_IstaXyea_13_2011 |  -.0174088   .0253532    -0.69   0.494      -.06756    .0327424
+_IstaXyea_21_2001 |   .0180964   .0253532     0.71   0.477    -.0320548    .0682476
+_IstaXyea_21_2002 |   .0334336   .0253532     1.32   0.190    -.0167177    .0835848
+_IstaXyea_21_2003 |   .0132459   .0253532     0.52   0.602    -.0369053    .0633971
+_IstaXyea_21_2004 |   .0105828   .0253532     0.42   0.677    -.0395684     .060734
+_IstaXyea_21_2005 |   .0211954   .0253532     0.84   0.405    -.0289559    .0713466
+_IstaXyea_21_2006 |   .0389414   .0253532     1.54   0.127    -.0112098    .0890926
+_IstaXyea_21_2007 |   .0057574   .0253532     0.23   0.821    -.0443938    .0559086
+_IstaXyea_21_2008 |  -.0103566   .0253532    -0.41   0.684    -.0605078    .0397946
+_IstaXyea_21_2009 |   .0123918   .0253532     0.49   0.626    -.0377594    .0625431
+_IstaXyea_21_2010 |   .0160148   .0253532     0.63   0.529    -.0341364     .066166
+_IstaXyea_21_2011 |   .0383044   .0253532     1.51   0.133    -.0118469    .0884556
+_IstaXyea_22_2001 |   .0482591   .0253532     1.90   0.059    -.0018921    .0984104
+_IstaXyea_22_2002 |   .0761284   .0253532     3.00   0.003     .0259772    .1262796
+_IstaXyea_22_2003 |   .0541785   .0253532     2.14   0.034     .0040273    .1043297
+_IstaXyea_22_2004 |    .025656   .0253532     1.01   0.313    -.0244952    .0758072
+_IstaXyea_22_2005 |   .0540528   .0253532     2.13   0.035     .0039016     .104204
+_IstaXyea_22_2006 |   .0295126   .0253532     1.16   0.247    -.0206386    .0796638
+_IstaXyea_22_2007 |   .0315797   .0253532     1.25   0.215    -.0185715     .081731
+_IstaXyea_22_2008 |   .0608121   .0253532     2.40   0.018     .0106609    .1109634
+_IstaXyea_22_2009 |   .0531765   .0253532     2.10   0.038     .0030252    .1033277
+_IstaXyea_22_2010 |    .079695   .0253532     3.14   0.002     .0295438    .1298463
+_IstaXyea_22_2011 |   .0140319   .0253532     0.55   0.581    -.0361193    .0641831
+_IstaXyea_28_2001 |   .0072632   .0253532     0.29   0.775     -.042888    .0574145
+_IstaXyea_28_2002 |   .0158469   .0253532     0.63   0.533    -.0343043    .0659981
+_IstaXyea_28_2003 |  -.0232589   .0253532    -0.92   0.361    -.0734101    .0268924
+_IstaXyea_28_2004 |   .0291618   .0253532     1.15   0.252    -.0209894     .079313
+_IstaXyea_28_2005 |   .0372503   .0253532     1.47   0.144     -.012901    .0874015
+_IstaXyea_28_2006 |  -.0035853   .0253532    -0.14   0.888    -.0537365    .0465659
+_IstaXyea_28_2007 |  -.0039042   .0253532    -0.15   0.878    -.0540554     .046247
+_IstaXyea_28_2008 |   .0524556   .0253532     2.07   0.040     .0023044    .1026069
+_IstaXyea_28_2009 |   .0242652   .0253532     0.96   0.340     -.025886    .0744164
+_IstaXyea_28_2010 |  -.0041901   .0253532    -0.17   0.869    -.0543413    .0459612
+_IstaXyea_28_2011 |    .015606   .0253532     0.62   0.539    -.0345452    .0657572
+_IstaXyea_37_2001 |   .0121197   .0253532     0.48   0.633    -.0380315    .0622709
+_IstaXyea_37_2002 |   .0129248   .0253532     0.51   0.611    -.0372264     .063076
+_IstaXyea_37_2003 |  -.0122114   .0253532    -0.48   0.631    -.0623627    .0379398
+_IstaXyea_37_2004 |  -.0018631   .0253532    -0.07   0.942    -.0520143    .0482881
+_IstaXyea_37_2005 |   .0300439   .0253532     1.19   0.238    -.0201073    .0801951
+_IstaXyea_37_2006 |   .0335904   .0253532     1.32   0.187    -.0165608    .0837416
+_IstaXyea_37_2007 |   .0285923   .0253532     1.13   0.261     -.021559    .0787435
+_IstaXyea_37_2008 |   .0231216   .0253532     0.91   0.363    -.0270296    .0732728
+_IstaXyea_37_2009 |  -.0019757   .0253532    -0.08   0.938    -.0521269    .0481755
+_IstaXyea_37_2010 |   .0268303   .0253532     1.06   0.292    -.0233209    .0769816
+_IstaXyea_37_2011 |   .0134745   .0253532     0.53   0.596    -.0366767    .0636257
+_IstaXyea_40_2001 |   .0549198   .0253532     2.17   0.032     .0047686    .1050711
+_IstaXyea_40_2002 |   .1027284   .0253532     4.05   0.000     .0525772    .1528796
+_IstaXyea_40_2003 |   .0597546   .0253532     2.36   0.020     .0096034    .1099058
+_IstaXyea_40_2004 |   .0706418   .0253532     2.79   0.006     .0204906     .120793
+_IstaXyea_40_2005 |   .0987997   .0253532     3.90   0.000     .0486485     .148951
+_IstaXyea_40_2006 |   .0621085   .0253532     2.45   0.016     .0119573    .1122598
+_IstaXyea_40_2007 |   .0797493   .0253532     3.15   0.002      .029598    .1299005
+_IstaXyea_40_2008 |   .0752401   .0253532     2.97   0.004     .0250889    .1253913
+_IstaXyea_40_2009 |   .0957746   .0253532     3.78   0.000     .0456233    .1459258
+_IstaXyea_40_2010 |   .1084559   .0253532     4.28   0.000     .0583047    .1586071
+_IstaXyea_40_2011 |   .0978407   .0253532     3.86   0.000     .0476895    .1479919
+_IstaXyea_45_2001 |  -.0048639   .0253532    -0.19   0.848    -.0550152    .0452873
+_IstaXyea_45_2002 |   .0298302   .0253532     1.18   0.241     -.020321    .0799814
+_IstaXyea_45_2003 |    .003149   .0253532     0.12   0.901    -.0470022    .0533002
+_IstaXyea_45_2004 |  -.0079365   .0253532    -0.31   0.755    -.0580877    .0422147
+_IstaXyea_45_2005 |   .0131778   .0253532     0.52   0.604    -.0369734     .063329
+_IstaXyea_45_2006 |   .0226516   .0253532     0.89   0.373    -.0274997    .0728028
+_IstaXyea_45_2007 |   .0106318   .0253532     0.42   0.676    -.0395194     .060783
+_IstaXyea_45_2008 |   .0514218   .0253532     2.03   0.045     .0012706     .101573
+_IstaXyea_45_2009 |  -.0099955   .0253532    -0.39   0.694    -.0601468    .0401557
+_IstaXyea_45_2010 |   .0097739   .0253532     0.39   0.700    -.0403773    .0599252
+_IstaXyea_45_2011 |  -.0069982   .0253532    -0.28   0.783    -.0571494     .043153
+_IstaXyea_47_2001 |  -.0072889   .0314468    -0.23   0.817    -.0694938     .054916
+_IstaXyea_47_2002 |   .0107568   .0314468     0.34   0.733    -.0514481    .0729618
+_IstaXyea_47_2003 |  -.0284217   .0314468    -0.90   0.368    -.0906267    .0337832
+_IstaXyea_47_2004 |  -.0412492   .0314468    -1.31   0.192    -.1034541    .0209557
+_IstaXyea_47_2005 |  -.0059045   .0314468    -0.19   0.851    -.0681094    .0563005
+_IstaXyea_47_2006 |  -.0006908   .0314468    -0.02   0.983    -.0628958    .0615141
+_IstaXyea_47_2007 |  -.0033758   .0314468    -0.11   0.915    -.0655807    .0588291
+_IstaXyea_47_2008 |  -.0221903   .0314468    -0.71   0.482    -.0843953    .0400146
+_IstaXyea_47_2009 |  -.0223438   .0314468    -0.71   0.479    -.0845488    .0398611
+_IstaXyea_47_2010 |  -.0059534   .0314468    -0.19   0.850    -.0681583    .0562515
+_IstaXyea_47_2011 |  -.0090615   .0314468    -0.29   0.774    -.0712665    .0531434
+_IstaXyea_48_2001 |   .0226648   .0253532     0.89   0.373    -.0274864    .0728161
+_IstaXyea_48_2002 |   .0375362   .0253532     1.48   0.141     -.012615    .0876875
+_IstaXyea_48_2003 |   .0292823   .0253532     1.15   0.250    -.0208689    .0794335
+_IstaXyea_48_2004 |   .0156313   .0253532     0.62   0.539    -.0345199    .0657825
+_IstaXyea_48_2005 |   .0465419   .0253532     1.84   0.069    -.0036093    .0966931
+_IstaXyea_48_2006 |   .0472383   .0253532     1.86   0.065     -.002913    .0973895
+_IstaXyea_48_2007 |   .0289337   .0253532     1.14   0.256    -.0212175    .0790849
+_IstaXyea_48_2008 |   .0556087   .0253532     2.19   0.030     .0054575    .1057599
+_IstaXyea_48_2009 |   .0605715   .0253532     2.39   0.018     .0104203    .1107227
+_IstaXyea_48_2010 |   .0646162   .0253532     2.55   0.012      .014465    .1147674
+_IstaXyea_48_2011 |   .0630881   .0253532     2.49   0.014     .0129368    .1132393
+_IstaXyea_51_2001 |   .0327365   .0253532     1.29   0.199    -.0174147    .0828877
+_IstaXyea_51_2002 |   .0504474   .0253532     1.99   0.049     .0002962    .1005987
+_IstaXyea_51_2003 |   .0267341   .0253532     1.05   0.294    -.0234171    .0768853
+_IstaXyea_51_2004 |  -.0071269   .0253532    -0.28   0.779    -.0572781    .0430244
+_IstaXyea_51_2005 |   .0421613   .0253532     1.66   0.099    -.0079899    .0923125
+_IstaXyea_51_2006 |   .0547831   .0253532     2.16   0.033     .0046319    .1049343
+_IstaXyea_51_2007 |   .0384097   .0253532     1.51   0.132    -.0117415    .0885609
+_IstaXyea_51_2008 |   .0474726   .0253532     1.87   0.063    -.0026786    .0976238
+_IstaXyea_51_2009 |   .0366466   .0253532     1.45   0.151    -.0135046    .0867978
+_IstaXyea_51_2010 |   .0258718   .0253532     1.02   0.309    -.0242794     .076023
+_IstaXyea_51_2011 |   .0402108   .0253532     1.59   0.115    -.0099404     .090362
+_IstaXyea_54_2001 |   .0486217   .0253532     1.92   0.057    -.0015295    .0987729
+_IstaXyea_54_2002 |   .0487402   .0253532     1.92   0.057     -.001411    .0988914
+_IstaXyea_54_2003 |  -.0054888   .0253532    -0.22   0.829      -.05564    .0446624
+_IstaXyea_54_2004 |  -.0113892   .0253532    -0.45   0.654    -.0615404     .038762
+_IstaXyea_54_2005 |   .0389375   .0253532     1.54   0.127    -.0112137    .0890887
+_IstaXyea_54_2006 |   .0854487   .0253532     3.37   0.001     .0352974    .1355999
+_IstaXyea_54_2007 |   .0350552   .0253532     1.38   0.169     -.015096    .0852065
+_IstaXyea_54_2008 |   .0475358   .0253532     1.87   0.063    -.0026154     .097687
+_IstaXyea_54_2009 |   .0193308   .0253532     0.76   0.447    -.0308204     .069482
+_IstaXyea_54_2010 |   .0284739   .0253532     1.12   0.263    -.0216773    .0786251
+_IstaXyea_54_2011 |   .0424967   .0253532     1.68   0.096    -.0076545    .0926479
+        _Inokid_1 |  -.0648623   .0099444    -6.52   0.000    -.0845332   -.0451914
+ _IyeaXnok_2001_1 |  -.0111298   .0099444    -1.12   0.265    -.0308007    .0085411
+ _IyeaXnok_2002_1 |   .0043649   .0099444     0.44   0.661     -.015306    .0240358
+ _IyeaXnok_2003_1 |   .0133051   .0099444     1.34   0.183    -.0063658     .032976
+ _IyeaXnok_2004_1 |   .0055612   .0099444     0.56   0.577    -.0141097    .0252321
+ _IyeaXnok_2005_1 |   .0018066   .0099444     0.18   0.856    -.0178644    .0214775
+ _IyeaXnok_2006_1 |   .0013933   .0099444     0.14   0.889    -.0182776    .0210643
+ _IyeaXnok_2007_1 |   .0031704   .0099444     0.32   0.750    -.0165005    .0228413
+ _IyeaXnok_2008_1 |   .0107297   .0099444     1.08   0.283    -.0089412    .0304006
+ _IyeaXnok_2009_1 |   .0099119   .0099444     1.00   0.321     -.009759    .0295828
+ _IyeaXnok_2010_1 |   .0090953   .0099444     0.91   0.362    -.0105756    .0287662
+ _IyeaXnok_2011_1 |   .0000655   .0099444     0.01   0.995    -.0196054    .0197364
+    _IstaXnok_5_1 |   .0099582   .0103504     0.96   0.338     -.010516    .0304323
+   _IstaXnok_12_1 |   .0280825   .0103504     2.71   0.008     .0076083    .0485566
+   _IstaXnok_13_1 |    .034732   .0103504     3.36   0.001     .0142579    .0552062
+   _IstaXnok_21_1 |  -.0038198   .0103504    -0.37   0.713    -.0242939    .0166544
+   _IstaXnok_22_1 |   .0008525   .0103504     0.08   0.934    -.0196217    .0213266
+   _IstaXnok_28_1 |  -.0065683   .0103504    -0.63   0.527    -.0270424    .0139059
+   _IstaXnok_37_1 |   .0243466   .0103504     2.35   0.020     .0038725    .0448208
+   _IstaXnok_40_1 |   .0348519   .0103504     3.37   0.001     .0143778    .0553261
+   _IstaXnok_45_1 |   -.019499   .0103504    -1.88   0.062    -.0399731    .0009752
+   _IstaXnok_47_1 |   .0064699   .0272338     0.24   0.813    -.0474011     .060341
+   _IstaXnok_48_1 |   .0608892   .0103504     5.88   0.000     .0404151    .0813634
+   _IstaXnok_51_1 |   .0354473   .0103504     3.42   0.001     .0149731    .0559214
+   _IstaXnok_54_1 |  -.0318022   .0103504    -3.07   0.003    -.0522763    -.011328
+            _cons |   .7696225   .0136169    56.52   0.000      .742687     .796558
+-----------------------------------------------------------------------------------
+
+. 
+. matrix results = J(12,1,0)
+
+. local row = 2
+
+. forvalues i = 2001/2011 {
+  2.  matrix results[`row',1] = _b[evt`i']
+  3.  local row = `row' + 1
+  4. }
+
+. 
+.  preserve
+
+. 
+. drop _all
+
+. svmat results
+number of observations will be reset to 12
+Press any key to continue, or Break to abort
+Number of observations (_N) was 0, now 12.
+
+. rename results1 evt_coeffs
+
+. gen year = _n + 1999
+
+. 
+. local inv_golden_ratio = 2 / ( sqrt(5) + 1 )
+
+. twoway ///
+>         (connected evt_coeffs year, lpattern(solid) lcolor(gray) mcolor(blue) msymbol(o)) /// 
+>                 , ///
+>                 ylabel(, nogrid angle(horizontal)  ) ///
+>                 scheme(s2mono) ///
+>                 aspectratio(`inv_golden_ratio') ///
+>                 graphregion(fcolor(white)) ///
+>                 xline(2005.1) ///
+>                 legend(off) ///
+>                 yscale( nofextend ) xscale(nofextend) ///
+>                 xlabel(2000(1)2011) ylabel(-0.06(0.02)0.06) /// 
+>                 xtitle(" ") ytitle(" ") 
+
+.         graph save ../gph/event_study_working.gph, replace
+file ../gph/event_study_working.gph saved
+
+.         graph export ../gph/event_study_working.eps, replace
+file ../gph/event_study_working.eps saved as EPS format
+
+.         !sz ../gph/event_study_working.eps
+'sz' is not recognized as an internal or external command,
+operable program or batch file.
+
+. 
+.  restore
+
+. 
+. 
+. 
+. log close
+      name:  <unnamed>
+       log:  C:\Users\Genna\OneDrive\Documents\ECON 580 Replication\ggn-replication-kit\do\../log/create-cps-figures.log
+  log type:  text
+ closed on:  21 Feb 2024, 17:06:08
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

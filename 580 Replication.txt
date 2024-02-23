@@ -1,0 +1,478 @@
+﻿Econ 580
+TennCare Replication
+Genevieve Goetz
+
+
+Overview 
+        “Public Health Insurance, Labor Supply, and Employment Lock” by Craig Garthwaite, Tal Gross, and Matthew J. Notowidigdo explores the effect of public health insurance eligibility on labor supply (of childless adults) through the lens of TennCare, Tennessee's state Medicaid system. Tennessee discontinued its expansion of TennCare in 2005, which sparked a sharp change in healthcare eligibility in Tennessee as compared to other Southern US states. The authors exploit this variation to construct a difference-in-differences model between Tennessee pre and post disenrollment and nearby states pre and post enrollment. The authors then examine the disproportionate outcomes amongst childless adults by estimating triple-difference models of Tennessee pre and post disenrollment between childless and non childless adults. As the paper’s title suggests, the authors specifically study “employment lock,” which occurs when employees feel “locked” in a job since leaving would result in a loss of employee benefits.
+        The authors analyze insurance coverage data from the Current Population Survey. Importantly, they select from the sample of individuals 21 to 64 years old without a higher degree. The research finds that Tennessee disenrollment did have a significant effect on labor supply; disenrollment caused an increase in labor supply. Additionally, a significant increase in private health insurance enrollment followed the TennCare disenrollment. These findings suggest that when faced with loss of public health insurance, workers are incentivized to search for work in an attempt to receive employer-provided insurance. 
+
+
+Replication and Issues
+
+
+I conducted the replication using the author’s data (cps_00013.dat) and the following .do files: create-cps-figures.do, fragment-prepare-cps-data.do, fragment-run-our-bbs-procedure.do, run-cps-main-tables.do, run-cps-regs-with-clustered-errors.do, and summary.do. 
+An issue I ran into was that my laptop naturally saves files to OneDrive, which can interfere with Stata’s abilities to access my files (603 error). This issue repeatedly slowed down my process and complicated my ability to keep track of my files, as the easiest solution I found was to make copies of files into accessible folders (if you know of a better solution please let me know!) 
+When I first began this assignment and planned to import my own data from IPUMS, I encountered the issue that many variable names had changed on the website since this paper was published. I went to office hours with professor Alder and, even though I did not run the code using my own data extract, I now feel comfortable using IPUMS as a data resource, which I think will be very helpful as I work on my own research project this semester.
+The last main issue I faced was being unable to generate the second table in the extension portion of this assignment. I believe the issue came from either me renaming the file or deleting tables 3-5 from the code. With professor Mommaerts’ help, I discovered that the issue was a “`piece’” term. After looking into it, I found out that ‘piece’ is likely an argument that is passed to this program to determine which tables to create. My theory is that deleting extra tables and renaming the .do file interrupted the program’s ability to access this argument. When I ran the .do file without this argument, Stata finally generated values for the table. 
+A lot of my process involved deleting or commenting out unnecessary code for the sake of ease. As I ran into issues with the main tables, running the entire .do file took up an unnecessary amount of time. So, in the run-cps-main-tables.do file, I kept the code for tables 1 and 2 and deleted the code for the others. In the summary.do file, I commented out the do files that were not necessary for this assignment (this is a step that William Zeng recommended to me and helped me do during class). I then ran summary.do to get the following results:
+
+
+Table 1: Summary Statistics for Tennessee and All Other Southern States, 2000-2007 
+
+
+	Tennessee 
+	Other Southern States
+	Any public coverage
+	18.9%
+	11.9%
+	Any private coverage
+	61.8%
+	62.1%
+	At work 
+	68.9%
+	71.1%
+	Working < 20 hrs/wk
+	4.1%
+	3.58%
+	Working 20-35 hrs/wk
+	9.7%
+	9.47%
+	Working 35 hrs/wk
+	55.1%
+	58.1%
+	Child in household (age < 18)
+	44.3%
+	45.2%
+	Age between 40 and 64 
+	54.9%
+	53.5%
+	Female 
+	52.1%
+	51.7%
+	High school dropout 
+	16.1%
+	15.8%
+	High school graduate
+	37.5%
+	34.9%
+	Some college or college graduate
+	46.3%
+	49.3%
+	White
+	81.2%
+	76.6%
+	Black 
+	16.8%
+	19.6%
+	Other
+	2.1%
+	3.8%
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Table 2: The Effect of TennCare Disenrollment on Employment 
+
+
+	Has Public Health Insurance 
+	Employed
+	Employed and Working < 20 hrs/wk
+	Employed and Working  20 hrs/wk
+	Employed and working 20-35 hrs/wk
+	Employed and working  35 hrs/wk
+	Tennessee x 2005
+	-.046
+	.025
+	-.001
+	.026
+	.001
+	.025
+	
+
+	(.004)
+	(.004)
+	(.002)
+	(.004)
+	(.002)
+	(.004)
+	
+
+	[0.000]
+	[0.000]
+	[0.396]
+	[0.000]
+	[0.643]
+	[0.000]
+	
+	.871
+	.867
+	.392
+	.847
+	.418
+	.819
+	N
+	136
+	136
+	136
+	136
+	136
+	136
+	Tennessee x 2005 x no children 
+	-.073
+	.046
+	.002
+	.044
+	.018
+	.026
+	
+
+	(0.006)
+	(.010)
+	(0.006)
+	(0.011)
+	(0.005)
+	(0.010)
+	
+
+	[0.000]
+	[0.000]
+	[0.757]
+	[0.001]
+	[0.002]
+	[0.018]
+	
+	.952
+	.941
+	.665
+	.931
+	.824
+	.918
+	N
+	272
+	272
+	272
+	272
+	272
+	272
+	
+
+Figure 2: 
+  
+  
+
+
+
+Figure 3:
+  
+  
+
+
+
+
+
+Extension:
+
+
+For my extension, I decided to limit my control to states with the same political party alignment as Tennessee. Tennessee voted Republican in the 2000 and 2004 presidential elections. I therefore eliminated Delaware, DC, and Maryland, as these were states that did not vote Republican in both the 2000 and 2004 presidential election. 
+        I then removed these states’ fip codes from the “gen south” components of the replication package. That way, when the code refers to “South = 1” or variables marked South, it is actually referring to Republican Southern states. By doing this and rerunning the code, I generated the following tables and figures:
+
+
+Table 1, Extended 
+
+
+	Tennessee 
+	Other Southern States
+	Other Rep. Southern States
+	Any public coverage
+	18.9%
+	11.9%
+	12.1%
+	Any private coverage
+	61.8%
+	62.1%
+	61.4%
+	At work 
+	68.9%
+	71.1%
+	70.8%
+	Working < 20 hrs/wk
+	4.1%
+	3.58%
+	3.5%
+	Working 20-35 hrs/wk
+	9.7%
+	9.47%
+	9.4%
+	Working 35 hrs/wk
+	55.1%
+	58.1%
+	57.9%
+	Child in household (age < 18)
+	44.3%
+	45.2%
+	45.4%
+	Age between 40 and 64 
+	54.9%
+	53.5%
+	53.5%
+	Female 
+	52.1%
+	51.7%
+	51.7%
+	High school dropout 
+	16.1%
+	15.8%
+	16.0%
+	High school graduate
+	37.5%
+	34.9%
+	34.9%
+	Some college or college graduate
+	46.3%
+	49.3%
+	49.1%
+	White
+	81.2%
+	76.6%
+	77.6%
+	Black 
+	16.8%
+	19.6%
+	18.7%
+	Other
+	2.1%
+	3.8%
+	3.8%
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Table 2 (version 2, new control group):
+
+
+
+
+	Has Public Health Insurance 
+	Employed
+	Employed and Working < 20 hrs/wk
+	Employed and Working  20 hrs/wk
+	Employed and working 20-35 hrs/wk
+	Employed and working  35 hrs/wk
+	Tennessee x 2005
+	-.042
+	.023
+	-.002
+	.025
+	.001
+	.025
+	
+
+	(.01)
+	(.01)
+	(.004
+	(.01)
+	(.007)
+	(.015)
+	
+
+	[0.000]
+	[0.0232]
+	[0.557]
+	[0.0142]
+	[0.941]
+	[0.117]
+	
+	.861
+	.850
+	.398
+	.831
+	.335
+	.827
+	N
+	112
+	112
+	112
+	112
+	112
+	112
+	Tennessee x 2005 x no children 
+	-.074
+	.045
+	.002
+	.043
+	.017
+	.026
+	
+
+	(0.015)
+	(.019)
+	(0.006)
+	(0.015)
+	(0.012)
+	(0.024)
+	
+
+	[0.000]
+	[0.0347]
+	[0.750]
+	[0.015]
+	[0.165]
+	[0.314]
+	
+	.934
+	.954
+	.650
+	.942
+	.838
+	.927
+	N
+	224
+	224
+	224
+	224
+	224
+	224
+	
+
+Figure 2 (version 2, new control group):
+
+
+  
+  
+
+
+
+Figure 3 (version 2, new control group):
+
+
+
+
+  
+  
+
+
+
+
+
+We see that in the descriptive statistics of any public coverage, at work, working more than 35 hrs a week, high school dropout, some college or college graduate, white, and black, the new control group more closely resembles Tennessee than the original control group. 
+Looking at figure 2, the difference in differences are remarkably similar, with little difference in the control groups’ public insurance coverage. In the triple differences figure, we see that the new control group exhibits a greater difference in public coverage between states with and without children than the original control group. Those with no children had more public insurance in the new control than in the original control. Those with children had less public insurance in the new control than in the original control. One explanation for this is that a decrease in public insurance could be interpreted as an increase to private insurance. As Republicans stereotypically do not trust in government institutions (as a tenant of republicanism is reduced taxes and government spending), it makes sense that republicans are more likely than democrats to switch to private insurance once they have kids. They want what is best for their family, and republicans are more likely than democrats to believe that that is private insurance. 
+Looking at figure 3, A and A2, individuals in the new control were generally less employed than those in the original control. In B and B2, we see that those without children in the new control group were generally less employed than those without children in the original control group. For those with children, the new control group exhibits employment less than or equal to the original control group. One reason for this could be that the eliminated states tended to have a higher minimum wage than Republican Southern states at this time. Delaware and Maryland sat at $6.15 and $5.15 respectively, while other Southern states had $2.65, $3.35, and $5.15 (many Southern states did not have data). Democratic states are more likely to have a higher minimum wage, which may have incentivized the higher employment rates we saw. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Citations
+
+
+Craig Garthwaite & Tal Gross & Matthew J. Notowidigdo, 2014. "Public Health Insurance, Labor Supply, and Employment Lock," The Quarterly Journal of Economics, Oxford University Press, vol. 129(2), pages 653-696.
+“Historical Presidential Election Information by State - 270towin.” 270toWin.Com, www.270towin.com/states/. Accessed 23 Feb. 2024. 
+U.S. Department of Labor. “Changes in Basic Minimum Wages in Non-Farm Employment under State Law: Selected Years 1968 to 2023.” DOL, Jan. 2024, www.dol.gov/agencies/whd/state/minimum-wage/history.
